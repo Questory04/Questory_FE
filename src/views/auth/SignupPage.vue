@@ -1,7 +1,7 @@
 <template>
     <div class="signup-wrapper">
         <div class="signup-container">
-            <BasicTitle />
+            <BasicLogo />
             <div class="form-container">
                 <div class="input-group">
                     <FormInput v-model="email" placeholder="email" />
@@ -22,7 +22,7 @@
                 </div>
                 <BasicTextButton msg="Signup" type="background" />
                 <div class="help-links">
-                    <a href="#">이미 계정이 있습니다.</a>
+                    <a href="/login">이미 계정이 있습니다.</a>
                 </div>
                 <SocialButton></SocialButton>
             </div>
@@ -32,7 +32,7 @@
 
 <script>
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
-import BasicTitle from "@/components/common/BasicTitle.vue";
+import BasicLogo from "@/components/common/BasicLogo.vue";
 import FormInput from "@/components/common/FormInput.vue";
 import SocialButton from "@/components/common/SocialButton.vue";
 
@@ -50,7 +50,7 @@ export default {
     },
     components: {
         SocialButton,
-        BasicTitle,
+        BasicLogo,
         FormInput,
         BasicTextButton,
     },
@@ -115,8 +115,9 @@ export default {
 
 .input-group {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     width: 100%;
+    /* height: 100%; */
     margin-bottom: 1rem;
 }
 
@@ -136,7 +137,6 @@ export default {
 }
 
 .verify-btn {
-    height: 48px;
     padding: 0 1.5rem;
     background-color: #74b1d4;
     color: white;
@@ -201,5 +201,18 @@ export default {
 .social-btn img {
     width: 60%;
     height: 60%;
+}
+
+.help-links {
+    font-size: 0.8rem;
+    color: gray;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.help-links a {
+    color: gray;
+    text-decoration: none;
+    margin: 0 5px;
 }
 </style>
