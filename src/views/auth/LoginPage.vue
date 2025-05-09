@@ -2,10 +2,15 @@
     <div class="login-wrapper">
         <div class="login-container">
             <BasicTitle />
-            <FormInput v-model="email" placeholder="email" />
-            <FormInput v-model="password" type="password" placeholder="password" />
-            <BasicTextButton msg="Login" type="background" />
-
+            <div class="input-button-wrapper">
+                <div class="input-group">
+                    <FormInput v-model="email" placeholder="email" />
+                </div>
+                <div class="input-group">
+                    <FormInput v-model="password" type="password" placeholder="password" />
+                </div>
+                <BasicTextButton msg="Login" type="background" />
+            </div>
             <div class="help-links">
                 <a href="#">회원가입</a>
                 <span>|</span>
@@ -52,6 +57,18 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.input-group {
+    display: flex;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.input-button-wrapper {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
 }
 
 .help-links {

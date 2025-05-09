@@ -18,7 +18,7 @@ export default {
 <style scoped>
 .login-button {
     width: 100%;
-    max-width: 300px;
+    max-width: 100%;
     padding: 12px;
     font-size: 1rem;
     font-weight: bold;

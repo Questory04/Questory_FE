@@ -31,17 +31,17 @@ export default {
 <style scoped>
 .input {
     width: 100%;
-    max-width: 300px;
+    max-width: 100%;
     padding: 12px;
-    margin-bottom: 1rem;
     border: none;
     border-radius: 8px;
-    background-color: #f2f4f6;
+    background-color: #e5e8eb;
     font-size: 1rem;
     box-sizing: border-box;
 }
 
 .form-input {
     width: 100%;
+    flex: 1;
 }
 </style>
