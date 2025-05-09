@@ -18,9 +18,9 @@
 
 <script setup>
 import { ref } from "vue";
-import BasicTitle from "../components/common/BasicTitle";
-import FormInput from "../components/common/FormInput";
-import BasicTextButton from "../components/common/BasicTextbutton.vue";
+import BasicTitle from "@/components/common/BasicTitle";
+import FormInput from "@/components/common/FormInput";
+import BasicTextButton from "@/components/common/BasicTextbutton.vue";
 import SocialButton from "@/components/common/SocialButton.vue";
 
 const email = ref("");
