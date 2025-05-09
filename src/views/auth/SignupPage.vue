@@ -1,7 +1,7 @@
 <template>
     <div class="signup-wrapper">
         <div class="signup-container">
-            <BasicTitle />
+            <BasicLogo />
             <div class="form-container">
                 <div class="input-group">
                     <FormInput v-model="email" placeholder="email" />
@@ -32,7 +32,7 @@
 
 <script>
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
-import BasicTitle from "@/components/common/BasicTitle.vue";
+import BasicLogo from "@/components/common/BasicLogo.vue";
 import FormInput from "@/components/common/FormInput.vue";
 import SocialButton from "@/components/common/SocialButton.vue";
 
@@ -50,7 +50,7 @@ export default {
     },
     components: {
         SocialButton,
-        BasicTitle,
+        BasicLogo,
         FormInput,
         BasicTextButton,
     },

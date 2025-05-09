@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrapper">
         <div class="login-container">
-            <BasicTitle />
+            <BasicLogo />
             <div class="input-button-wrapper">
                 <div class="input-group">
                     <FormInput v-model="email" placeholder="email" />
@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from "vue";
-import BasicTitle from "@/components/common/BasicTitle";
+import BasicLogo from "@/components/common/BasicLogo";
 import FormInput from "@/components/common/FormInput";
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
 import SocialButton from "@/components/common/SocialButton.vue";
