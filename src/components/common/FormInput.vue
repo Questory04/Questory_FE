@@ -33,9 +33,9 @@ export default {
     width: 100%;
     max-width: 100%;
     padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background-color: #e5e8eb;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f0f2f5;
     font-size: 1rem;
     box-sizing: border-box;
 }

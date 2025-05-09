@@ -12,9 +12,9 @@
                 <BasicTextButton msg="Login" type="background" />
             </div>
             <div class="help-links">
-                <a href="#">회원가입</a>
+                <a href="/signup">회원가입</a>
                 <span>|</span>
-                <a href="#">비밀번호를 잊으셨나요?</a>
+                <a href="/find-password">비밀번호를 잊으셨나요?</a>
             </div>
             <SocialButton></SocialButton>
         </div>

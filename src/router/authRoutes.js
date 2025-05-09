@@ -9,4 +9,9 @@ export default [
         name: "signup",
         component: () => import("@/views/auth/SignupPage.vue"),
     },
+    {
+        path: "/find-password",
+        name: "find-password",
+        component: () => import("@/views/auth/PasswordFindPage.vue"),
+    },
 ];
