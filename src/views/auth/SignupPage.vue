@@ -1,29 +1,31 @@
 <template>
-    <div class="signup-container">
-        <BasicTitle />
-        <div class="form-container">
-            <div class="input-group">
-                <FormInput v-model="email" placeholder="email" />
-                <button class="verify-btn">전송</button>
+    <div class="signup-wrapper">
+        <div class="signup-container">
+            <BasicTitle />
+            <div class="form-container">
+                <div class="input-group">
+                    <FormInput v-model="email" placeholder="email" />
+                    <button class="verify-btn">전송</button>
+                </div>
+                <div class="input-group">
+                    <FormInput v-model="phoneAuth" placeholder="인증번호 입력" />
+                    <button class="verify-btn">확인</button>
+                </div>
+                <div class="input-group password-group">
+                    <FormInput type="password" v-model="password" placeholder="password" />
+                </div>
+                <div class="input-field-wrapper">
+                    <FormInput type="password" v-model="passwordCheck" placeholder="password check" />
+                </div>
+                <div class="input-field-wrapper">
+                    <FormInput type="text" v-model="nickname" placeholder="nickname" />
+                </div>
+                <BasicTextButton msg="Signup" type="background" />
+                <div class="help-links">
+                    <a href="#">이미 계정이 있습니다.</a>
+                </div>
+                <SocialButton></SocialButton>
             </div>
-            <div class="input-group">
-                <FormInput v-model="phoneAuth" placeholder="인증번호 입력" />
-                <button class="verify-btn">확인</button>
-            </div>
-            <div class="input-group password-group">
-                <FormInput type="password" v-model="password" placeholder="password" />
-            </div>
-            <div class="input-field-wrapper">
-                <FormInput type="password" v-model="passwordCheck" placeholder="password check" />
-            </div>
-            <div class="input-field-wrapper">
-                <FormInput type="text" v-model="nickname" placeholder="nickname" />
-            </div>
-            <BasicTextButton msg="Signup" type="background" />
-            <div class="help-links">
-                <a href="#">이미 계정이 있습니다.</a>
-            </div>
-            <SocialButton></SocialButton>
         </div>
     </div>
 </template>
@@ -77,6 +79,16 @@ export default {
 </script>
 
 <style scoped>
+.signup-wrapper {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
 .input {
     flex: 1;
     padding: 0.8rem 1rem;
