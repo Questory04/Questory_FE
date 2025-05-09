@@ -2,41 +2,27 @@
     <div class="signup-container">
         <BasicTitle />
         <div class="form-container">
-            <!-- Email input -->
             <div class="input-group">
                 <FormInput v-model="email" placeholder="email" />
                 <button class="verify-btn">전송</button>
             </div>
-
-            <!-- Phone input -->
             <div class="input-group">
                 <FormInput v-model="phoneAuth" placeholder="인증번호 입력" />
                 <button class="verify-btn">확인</button>
             </div>
-
-            <!-- Password input -->
             <div class="input-group password-group">
                 <FormInput type="password" v-model="password" placeholder="password" />
             </div>
-
-            <!-- Password confirmation -->
             <div class="input-field-wrapper">
                 <FormInput type="password" v-model="passwordCheck" placeholder="password check" />
             </div>
-
-            <!-- Nickname input -->
             <div class="input-field-wrapper">
                 <FormInput type="text" v-model="nickname" placeholder="nickname" />
             </div>
-
-            <!-- Sign up button -->
             <BasicTextButton msg="Signup" type="background" />
-
             <div class="help-links">
                 <a href="#">이미 계정이 있습니다.</a>
             </div>
-
-            <!-- Social login options -->
             <SocialButton></SocialButton>
         </div>
     </div>
@@ -71,27 +57,20 @@ export default {
             this.showPassword = !this.showPassword;
         },
         signup() {
-            // Validate form
             if (!this.email || !this.phoneAuth || !this.password || !this.passwordCheck || !this.nickname) {
                 alert("모든 필드를 입력해주세요.");
                 return;
             }
-
-            // Check if passwords match
             if (this.password !== this.passwordCheck) {
                 alert("비밀번호가 일치하지 않습니다.");
                 return;
             }
-
-            // Submit form data
             console.log("Sign up form submitted:", {
                 email: this.email,
                 phoneAuth: this.phoneAuth,
                 password: this.password,
                 nickname: this.nickname,
             });
-
-            // Registration API call would be made here
         },
     },
 };
