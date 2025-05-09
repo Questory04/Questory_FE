@@ -1,20 +1,18 @@
 <template>
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App" /> -->
-    <LoginPage></LoginPage>
+    <!-- <LoginPage></LoginPage> -->
+    <router-view></router-view>
 </template>
 
-<script>
-// import HelloWorld from "./components/HelloWorld.vue";
+<!-- <script>
 import LoginPage from "./views/LoginPage";
 
 export default {
     name: "App",
     components: {
-        // HelloWorld,
         LoginPage,
     },
 };
-</script>
+</script> -->
 
 <style>
 #app {
