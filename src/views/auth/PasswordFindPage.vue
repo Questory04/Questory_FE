@@ -1,4 +1,5 @@
 <template>
+    <AppHeader />
     <div class="forgot-password-container">
         <BasicLogo />
         <div class="form-box">
@@ -18,6 +19,7 @@
 import BasicTitle from "@/components/common/BasicTitle.vue";
 import BasicLogo from "@/components/common/BasicLogo.vue";
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
+import AppHeader from "@/components/fragments/AppHeader.vue";
 
 export default {
     name: "ForgotPasswordView",
@@ -30,6 +32,7 @@ export default {
         BasicTitle,
         BasicLogo,
         BasicTextButton,
+        AppHeader,
     },
 };
 </script>
