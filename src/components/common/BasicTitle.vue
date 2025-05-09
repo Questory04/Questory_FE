@@ -1,36 +1,6 @@
 <template>
-    <div class="login-wrapper">
-        <div class="login-container">
-            <h2 class="title">Questory</h2>
-            <FormInput v-model="email" placeholder="email" />
-            <FormInput v-model="password" type="password" placeholder="password" />
-            <button class="login-button">Login</button>
-            <div class="help-links">
-                <a href="#">회원가입</a>
-                <span>|</span>
-                <a href="#">비밀번호를 잊으셨나요?</a>
-            </div>
-            <div class="social-login">
-                <img src="../../assets/images/social/Kakao Social Login Button.png" alt="kakao" class="social-icon" />
-                <img src="../../assets/images/social/Naver Social Login Button.png" alt="naver" class="social-icon" />
-                <img src="../../assets/images/social/Google Social Login Button.png" alt="google" class="social-icon" />
-            </div>
-        </div>
-    </div>
+    <h2 class="title">Questory</h2>
 </template>
-
-<script>
-import FormInput from "../common/FormInput";
-
-export default {
-    name: "BasicTitle",
-    components: {
-        // HelloWorld,
-        FormInput,
-    },
-};
-</script>
-
 <style>
 html,
 body {
