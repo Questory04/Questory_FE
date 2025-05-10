@@ -1,5 +1,4 @@
 <template>
-    <AppHeader />
     <div class="signup-wrapper">
         <div class="signup-container">
             <BasicLogo />
@@ -36,7 +35,6 @@ import BasicTextButton from "@/components/common/BasicTextbutton.vue";
 import BasicLogo from "@/components/common/BasicLogo.vue";
 import FormInput from "@/components/common/FormInput.vue";
 import SocialButton from "@/components/common/SocialButton.vue";
-import AppHeader from "@/components/fragments/AppHeader.vue";
 
 export default {
     name: "SignupForm",
@@ -55,7 +53,6 @@ export default {
         BasicLogo,
         FormInput,
         BasicTextButton,
-        AppHeader,
     },
     methods: {
         togglePassword() {

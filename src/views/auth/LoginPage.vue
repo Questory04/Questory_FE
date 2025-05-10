@@ -1,5 +1,4 @@
 <template>
-    <AppHeader />
     <div class="login-wrapper">
         <div class="login-container">
             <BasicLogo />
@@ -28,21 +27,12 @@ import BasicLogo from "@/components/common/BasicLogo";
 import FormInput from "@/components/common/FormInput";
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
 import SocialButton from "@/components/common/SocialButton.vue";
-import AppHeader from "@/components/fragments/AppHeader.vue";
 
 const email = ref("");
 const password = ref("");
 </script>
 
 <style scoped>
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-y: hidden;
-}
-
 .login-wrapper {
     height: 100vh;
     display: flex;

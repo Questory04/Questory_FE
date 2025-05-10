@@ -1,6 +1,17 @@
 <template>
-    <router-view></router-view>
+    <AppHeader />
+    <router-view />
 </template>
+
+<script>
+import AppHeader from "@/components/fragments/AppHeader.vue";
+
+export default {
+  components: {
+    AppHeader,
+  },
+};
+</script>
 
 <style>
 #app {
