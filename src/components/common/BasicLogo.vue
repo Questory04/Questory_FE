@@ -2,14 +2,6 @@
     <h2 class="title">Questory</h2>
 </template>
 <style>
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-y: hidden;
-}
-
 .login-wrapper {
     height: 100vh;
     display: flex;
