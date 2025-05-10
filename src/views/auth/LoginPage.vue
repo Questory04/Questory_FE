@@ -33,14 +33,6 @@ const password = ref("");
 </script>
 
 <style scoped>
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-y: hidden;
-}
-
 .login-wrapper {
     height: 100vh;
     display: flex;
