@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import authRoutes from "./authRoutes";
+import mainRoutes from "./mainRoutes";
 
 const routes = [
     ...authRoutes,
+    ...mainRoutes,
     // 공통 페이지 추가
     // {
     //     path: "/:pathMatch(.*)*",
