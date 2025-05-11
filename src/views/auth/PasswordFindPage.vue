@@ -40,7 +40,7 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 80vh;
 }
 
 .form-box {
