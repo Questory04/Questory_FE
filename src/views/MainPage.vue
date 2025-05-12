@@ -1,25 +1,25 @@
 <template>
-  <div class="main-wrapper">
-    <Banner />
+    <div class="main-wrapper">
+        <Banner />
 
-    <div class="section-wrapper up-section">
-      <div class="left">
-        <QuestList />
-      </div>
-      <div class="right">
-        <MyInfo />
-      </div>
-    </div>
+        <div class="section-wrapper up-section">
+            <div class="left">
+                <QuestList />
+            </div>
+            <div class="right">
+                <MyInfo />
+            </div>
+        </div>
 
-    <div class="section-wrapper down-section">
-      <div class="left">
-        <PopularRoutes />
-      </div>
-      <div class="right">
-        <Ranking />
-      </div>
+        <div class="section-wrapper down-section">
+            <div class="left">
+                <PopularRoutes />
+            </div>
+            <div class="right">
+                <Ranking />
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -30,42 +30,48 @@ import MyInfo from "@/components/main/MyInfo.vue";
 import Ranking from "@/components/main/SmallRanking.vue";
 
 export default {
-  name: "MainPage",
-  components: {
-    Banner,
-    QuestList,
-    PopularRoutes,
-    MyInfo,
-    Ranking
-  }
+    name: "MainPage",
+    components: {
+        Banner,
+        QuestList,
+        PopularRoutes,
+        MyInfo,
+        Ranking,
+    },
 };
 </script>
 
 <style scoped>
 .main-wrapper {
-  padding: 20px;
+    width: 60vw;
+    margin: 0 auto; /* 가운데 정렬 */
+    padding: 20px;
 }
 
 .section-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 40px;
 }
 
 .left {
-  flex: 3;
-  min-width: 300px;
+    flex: 3;
+    min-width: 300px;
 }
 
 .right {
-  flex: 1;
-  min-width: 250px;
+    flex: 1;
+    min-width: 250px;
 }
 
 @media (max-width: 768px) {
-  .section-wrapper {
-    flex-direction: column;
-  }
+    .main-wrapper {
+        width: 90vw;
+    }
+
+    .section-wrapper {
+        flex-direction: column;
+    }
 }
 </style>
