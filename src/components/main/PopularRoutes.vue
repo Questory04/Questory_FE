@@ -1,6 +1,6 @@
 <template>
     <section class="section popular-routes">
-        <BasicTitle msg="인기 여행 루트" color="black" />
+        <BasicTitle msg="🗺️ 인기 여행 루트" color="black" />
         <Swiper
             :slides-per-view="1"
             :space-between="16"

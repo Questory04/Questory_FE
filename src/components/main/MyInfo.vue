@@ -1,5 +1,5 @@
 <template>
-    <BasicTitle msg="My" color="black" />
+    <BasicTitle msg="👤 My" color="black" />
     <aside class="my-info">
         <div class="profile-box">
             <div class="badge">등록됨</div>
