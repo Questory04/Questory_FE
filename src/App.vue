@@ -1,7 +1,9 @@
 <template>
-    <AppHeader />
-    <router-view />
-    <AppFooter />
+    <v-app>
+        <AppHeader />
+        <router-view />
+        <AppFooter />
+    </v-app>
 </template>
 
 <script>
@@ -9,10 +11,10 @@ import AppHeader from "@/components/fragments/AppHeader.vue";
 import AppFooter from "@/components/fragments/AppFooter.vue";
 
 export default {
-  components: {
-    AppHeader,
-    AppFooter,
-  },
+    components: {
+        AppHeader,
+        AppFooter,
+    },
 };
 </script>
 
