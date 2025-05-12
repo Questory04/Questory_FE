@@ -1,6 +1,6 @@
 <template>
     <section class="section recommend-quests">
-        <BasicTitle msg="추천 퀘스트" />
+        <BasicTitle msg="추천 퀘스트" color="black" />
         <Swiper
             :slides-per-view="1"
             :space-between="16"
