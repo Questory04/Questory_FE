@@ -14,4 +14,9 @@ export default [
         name: "find-password",
         component: () => import("@/views/auth/PasswordFindPage.vue"),
     },
+    {
+        path: "/mypage",
+        name: "mypage",
+        component: () => import("@/views/auth/MypagePage.vue"),
+    },
 ];
