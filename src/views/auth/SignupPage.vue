@@ -20,7 +20,7 @@
                 <div class="input-field-wrapper">
                     <FormInput type="text" v-model="nickname" placeholder="nickname" />
                 </div>
-                <BasicTextButton msg="Signup" type="background" />
+                <BasicTextButton msg="Signup" type="background" @click="regist" />
                 <div class="help-links">
                     <a href="/login">이미 계정이 있습니다.</a>
                 </div>
@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
 import BasicLogo from "@/components/common/BasicLogo.vue";
 import FormInput from "@/components/common/FormInput.vue";
@@ -55,11 +57,8 @@ export default {
         BasicTextButton,
     },
     methods: {
-        togglePassword() {
-            this.showPassword = !this.showPassword;
-        },
-        signup() {
-            if (!this.email || !this.phoneAuth || !this.password || !this.passwordCheck || !this.nickname) {
+        async regist() {
+            if (!this.email || !this.password || !this.passwordCheck || !this.nickname) {
                 alert("모든 필드를 입력해주세요.");
                 return;
             }
@@ -67,12 +66,21 @@ export default {
                 alert("비밀번호가 일치하지 않습니다.");
                 return;
             }
-            console.log("Sign up form submitted:", {
-                email: this.email,
-                phoneAuth: this.phoneAuth,
-                password: this.password,
-                nickname: this.nickname,
-            });
+
+            try {
+                const response = await axios.post("http://localhost:8080/members/regist", {
+                    email: this.email,
+                    password: this.password,
+                    nickname: this.nickname,
+                });
+
+                alert("회원가입이 완료되었습니다!");
+                console.log(response.data);
+                this.$router.push("/login");
+            } catch (error) {
+                console.error("회원가입 실패:", error);
+                alert("회원가입 중 오류가 발생했습니다.");
+            }
         },
     },
 };
@@ -80,7 +88,7 @@ export default {
 
 <style scoped>
 .signup-wrapper {
-    height: 80vh; 
+    height: 80vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,7 +125,6 @@ export default {
     display: flex;
     align-items: stretch;
     width: 100%;
-    /* height: 100%; */
     margin-bottom: 1rem;
 }
 

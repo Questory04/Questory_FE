@@ -9,7 +9,7 @@
                 <div class="input-group">
                     <FormInput v-model="password" type="password" placeholder="password" />
                 </div>
-                <BasicTextButton msg="Login" type="background" />
+                <BasicTextButton msg="Login" type="background" @click="login" />
             </div>
             <div class="help-links">
                 <a href="/signup">회원가입</a>
@@ -23,6 +23,9 @@
 
 <script setup>
 import { ref } from "vue";
+import axios from "axios";
+import { useRouter } from "vue-router";
+
 import BasicLogo from "@/components/common/BasicLogo";
 import FormInput from "@/components/common/FormInput";
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
@@ -30,6 +33,32 @@ import SocialButton from "@/components/common/SocialButton.vue";
 
 const email = ref("");
 const password = ref("");
+const router = useRouter();
+
+const login = async () => {
+    if (!email.value || !password.value) {
+        alert("이메일과 비밀번호를 모두 입력해주세요.");
+        return;
+    }
+
+    try {
+        const response = await axios.post("http://localhost:8080/members/login", {
+            email: email.value,
+            password: password.value,
+        });
+
+        console.log("로그인 성공:", response.data);
+
+        // 예: JWT 토큰을 localStorage 등에 저장
+        // localStorage.setItem("token", response.data.token);
+
+        alert("로그인 성공!");
+        router.push("/");
+    } catch (error) {
+        console.error("로그인 실패:", error);
+        alert("이메일 또는 비밀번호가 올바르지 않습니다.");
+    }
+};
 </script>
 
 <style scoped>
