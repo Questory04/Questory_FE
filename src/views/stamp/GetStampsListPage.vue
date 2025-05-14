@@ -54,11 +54,40 @@
                             <span class="tag">{{ stamp.contentTypeTitle }}</span>
                             <span class="tag">{{ stamp.sidoName }}</span>
                         </div>
-                        <button class="detail-btn">상세보기</button>
+                        <button class="detail-btn" @click="openDetailModal(stamp)">상세보기</button>
                     </div>
                 </div>
             </div>
         </main>
+
+        <!-- 상세 정보 모달 -->
+        <div class="modal-overlay" v-if="selectedStamp" @click.self="closeDetailModal">
+            <div class="modal-content">
+                <button class="close-btn" @click="closeDetailModal">×</button>
+                <h3 class="modal-title">{{ selectedStamp.title }}</h3>
+                <div class="stamp-detail-image">
+                    <div class="circle large">
+                        <span>{{ selectedStamp.imageName }}</span>
+                    </div>
+                </div>
+                <div class="stamp-detail-info">
+                    <p class="stamp-date">획득 날짜: {{ selectedStamp.date }}</p>
+                    <div class="stamp-tags">
+                        <span class="tag">{{ selectedStamp.tag1 }}</span>
+                        <span class="tag">{{ selectedStamp.tag2 }}</span>
+                    </div>
+                    <div class="difficulty-badge" :class="selectedStamp.difficulty.toLowerCase()">
+                        {{ selectedStamp.difficulty }}
+                    </div>
+                    <p class="stamp-description">
+                        {{
+                            selectedStamp.description ||
+                            "이 스탬프는 특별한 퀘스트를 완료하여 획득한 기념 스탬프입니다."
+                        }}
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -165,6 +194,14 @@ export default {
     methods: {
         filterStamps(difficulty) {
             this.selectedDifficulty = difficulty;
+        },
+        openDetailModal(stamp) {
+            this.selectedStamp = stamp;
+            document.body.style.overflow = "hidden"; // 모달 열릴 때 배경 스크롤 방지
+        },
+        closeDetailModal() {
+            this.selectedStamp = null;
+            document.body.style.overflow = ""; // 모달 닫힐 때 배경 스크롤 복원
         },
     },
 };
@@ -336,6 +373,87 @@ body {
     background-color: #4a90e2;
 }
 
+/* 모달 스타일 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #4a90e2;
+}
+
+.stamp-detail-image {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.stamp-detail-info {
+    text-align: center;
+}
+
+.difficulty-badge {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+    margin: 1rem 0;
+}
+
+.difficulty-badge.easy {
+    background-color: #28a745;
+}
+
+.difficulty-badge.medium {
+    background-color: #fd7e14;
+}
+
+.difficulty-badge.hard {
+    background-color: #dc3545;
+}
+
+.stamp-description {
+    margin-bottom: 0.5rem;
+    text-align: left;
+    line-height: 1.6;
+}
+
 /* 반응형 스타일 */
 @media (max-width: 960px) {
     .stamp-grid {
@@ -385,10 +503,10 @@ body {
         grid-template-columns: 1fr;
     }
 
-    /* .modal-content {
+    .modal-content {
         width: 95%;
         padding: 1.5rem;
-    } */
+    }
 
     .title {
         font-size: 1.5rem;
