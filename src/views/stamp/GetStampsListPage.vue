@@ -73,8 +73,8 @@
                 <div class="stamp-detail-info">
                     <p class="stamp-date">획득 날짜: {{ selectedStamp.date }}</p>
                     <div class="stamp-tags">
-                        <span class="tag">{{ selectedStamp.tag1 }}</span>
-                        <span class="tag">{{ selectedStamp.tag2 }}</span>
+                        <span class="tag">{{ selectedStamp.contentTypeTitle }}</span>
+                        <span class="tag">{{ selectedStamp.sidoName }}</span>
                     </div>
                     <div class="difficulty-badge" :class="selectedStamp.difficulty.toLowerCase()">
                         {{ selectedStamp.difficulty }}
