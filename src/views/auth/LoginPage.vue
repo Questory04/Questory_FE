@@ -1,6 +1,10 @@
 <template>
     <div class="login-wrapper">
         <div class="login-container">
+            <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=settings"
+            />
             <BasicLogo />
             <div class="input-button-wrapper">
                 <div class="input-group">
@@ -25,6 +29,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth"; // ✅ Pinia 스토어 import
 
 import BasicLogo from "@/components/common/BasicLogo";
 import FormInput from "@/components/common/FormInput";
@@ -34,6 +39,7 @@ import SocialButton from "@/components/common/SocialButton.vue";
 const email = ref("");
 const password = ref("");
 const router = useRouter();
+const authStore = useAuthStore(); // ✅ 스토어 인스턴스 생성
 
 const login = async () => {
     if (!email.value || !password.value) {
@@ -49,8 +55,11 @@ const login = async () => {
 
         console.log("로그인 성공:", response.data);
 
-        // 예: JWT 토큰을 localStorage 등에 저장
-        // localStorage.setItem("token", response.data.token);
+        // ✅ accessToken과 refreshToken 저장
+        const accessToken = response.data.accessToken;
+        const refreshToken = response.data.refreshToken || ""; // 없으면 빈 문자열
+
+        authStore.setTokens(accessToken, refreshToken); // ✅ 저장
 
         alert("로그인 성공!");
         router.push("/");
@@ -60,7 +69,6 @@ const login = async () => {
     }
 };
 </script>
-
 <style scoped>
 .login-wrapper {
     height: 80vh;
