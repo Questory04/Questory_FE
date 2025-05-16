@@ -29,7 +29,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth"; // ✅ Pinia 스토어 import
+import { useAuthStore } from "@/stores/auth";
 
 import BasicLogo from "@/components/common/BasicLogo";
 import FormInput from "@/components/common/FormInput";
@@ -39,7 +39,7 @@ import SocialButton from "@/components/common/SocialButton.vue";
 const email = ref("");
 const password = ref("");
 const router = useRouter();
-const authStore = useAuthStore(); // ✅ 스토어 인스턴스 생성
+const authStore = useAuthStore();
 
 const login = async () => {
     if (!email.value || !password.value) {
@@ -55,11 +55,10 @@ const login = async () => {
 
         console.log("로그인 성공:", response.data);
 
-        // ✅ accessToken과 refreshToken 저장
         const accessToken = response.data.accessToken;
-        const refreshToken = response.data.refreshToken || ""; // 없으면 빈 문자열
+        const refreshToken = response.data.refreshToken || "";
 
-        authStore.setTokens(accessToken, refreshToken); // ✅ 저장
+        authStore.setTokens(accessToken, refreshToken);
 
         alert("로그인 성공!");
         router.push("/");
