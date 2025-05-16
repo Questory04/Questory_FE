@@ -5,12 +5,13 @@
             <div class="form-container">
                 <div class="input-group">
                     <FormInput v-model="email" placeholder="email" />
-                    <button class="verify-btn">전송</button>
+                    <button class="verify-btn" @click="sendVerifyEmail">전송</button>
                 </div>
                 <div class="input-group">
                     <FormInput v-model="phoneAuth" placeholder="인증번호 입력" />
-                    <button class="verify-btn">확인</button>
+                    <button class="verify-btn" @click="verifyEmailCode">확인</button>
                 </div>
+                <p v-if="isVerified" class="verified-msg">✅ 인증이 완료되었습니다.</p>
                 <div class="input-group password-group">
                     <FormInput type="password" v-model="password" placeholder="password" />
                 </div>
@@ -21,10 +22,12 @@
                     <FormInput type="text" v-model="nickname" placeholder="nickname" />
                 </div>
                 <BasicTextButton msg="Signup" type="background" @click="regist" />
+
                 <div class="help-links">
                     <a href="/login">이미 계정이 있습니다.</a>
                 </div>
-                <SocialButton></SocialButton>
+
+                <SocialButton />
             </div>
         </div>
     </div>
@@ -32,7 +35,6 @@
 
 <script>
 import axios from "axios";
-
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
 import BasicLogo from "@/components/common/BasicLogo.vue";
 import FormInput from "@/components/common/FormInput.vue";
@@ -47,7 +49,7 @@ export default {
             password: "",
             passwordCheck: "",
             nickname: "",
-            showPassword: false,
+            isVerified: false, // 인증 여부
         };
     },
     components: {
@@ -57,25 +59,65 @@ export default {
         BasicTextButton,
     },
     methods: {
+        async sendVerifyEmail() {
+            if (!this.email) {
+                alert("이메일을 입력해주세요.");
+                return;
+            }
+
+            try {
+                const response = await axios.post("http://localhost:8080/members/send-verify", {
+                    email: this.email,
+                });
+                alert(response.data.message);
+            } catch (error) {
+                console.error("인증코드 전송 실패:", error);
+                alert(error.response?.data?.message || "전송 중 오류 발생");
+            }
+        },
+        async verifyEmailCode() {
+            if (!this.email || !this.phoneAuth) {
+                alert("이메일과 인증코드를 모두 입력해주세요.");
+                return;
+            }
+
+            try {
+                const response = await axios.post("http://localhost:8080/members/verify-code", {
+                    email: this.email,
+                    code: this.phoneAuth,
+                });
+                alert(response.data.message);
+                this.isVerified = true;
+            } catch (error) {
+                console.error("인증 실패:", error);
+                alert(error.response?.data?.message || "인증 중 오류 발생");
+                this.isVerified = false;
+            }
+        },
         async regist() {
+            if (!this.isVerified) {
+                alert("이메일 인증이 필요합니다.");
+                return;
+            }
+
             if (!this.email || !this.password || !this.passwordCheck || !this.nickname) {
                 alert("모든 필드를 입력해주세요.");
                 return;
             }
+
             if (this.password !== this.passwordCheck) {
                 alert("비밀번호가 일치하지 않습니다.");
                 return;
             }
 
             try {
-                const response = await axios.post("http://localhost:8080/members/regist", {
+                await axios.post("http://localhost:8080/members/regist", {
                     email: this.email,
                     password: this.password,
                     nickname: this.nickname,
                 });
 
                 alert("회원가입이 완료되었습니다!");
-                console.log(response.data);
                 this.$router.push("/login");
             } catch (error) {
                 console.error("회원가입 실패:", error);
@@ -96,18 +138,6 @@ export default {
     padding: 1rem;
     box-sizing: border-box;
 }
-
-.input {
-    flex: 1;
-    padding: 0.8rem 1rem;
-    height: 48px;
-    border: none;
-    border-radius: 8px;
-    background-color: #e5e8eb;
-    font-size: 1rem;
-    box-sizing: border-box;
-}
-
 .signup-container {
     display: flex;
     flex-direction: column;
@@ -116,33 +146,19 @@ export default {
     margin: 0 auto;
     padding: 2rem 1rem;
 }
-
 .form-container {
     width: 100%;
 }
-
 .input-group {
     display: flex;
     align-items: stretch;
     width: 100%;
     margin-bottom: 1rem;
 }
-
 .input-field-wrapper {
     margin-bottom: 1rem;
     width: 100%;
 }
-
-.input-field {
-    flex: 1;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f1f3f5;
-    font-size: 1rem;
-    width: 100%;
-}
-
 .verify-btn {
     padding: 0 1.5rem;
     background-color: #74b1d4;
@@ -157,66 +173,19 @@ export default {
 .password-group {
     position: relative;
 }
-
-.eye-btn {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
+.verified-msg {
+    color: green;
+    font-weight: bold;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
-
-.signup-btn {
-    width: 100%;
-    padding: 0.8rem;
-    background-color: #74b1d4;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 1rem;
-}
-
-.login-link {
-    text-align: center;
-    margin: 1rem 0;
-    color: #666;
-    cursor: pointer;
-}
-
-.social-login {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.social-btn {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.social-btn img {
-    width: 60%;
-    height: 60%;
-}
-
 .help-links {
     font-size: 0.8rem;
     color: gray;
     margin-bottom: 1.5rem;
     text-align: center;
 }
-
 .help-links a {
     color: gray;
     text-decoration: none;
