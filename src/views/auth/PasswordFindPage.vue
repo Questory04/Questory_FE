@@ -4,7 +4,7 @@
         <div class="form-box">
             <BasicTitle msg="비밀번호 찾기" />
             <input type="email" class="input-field" placeholder="email" v-model="email" />
-            <BasicTextButton msg="Submit" type="background" />
+            <BasicTextButton msg="Submit" type="background" @click="sendVerificationEmail" />
             <div class="help-links">
                 <a href="/login">로그인</a>
                 <span>|</span>
@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 import BasicTitle from "@/components/common/BasicTitle.vue";
 import BasicLogo from "@/components/common/BasicLogo.vue";
 import BasicTextButton from "@/components/common/BasicTextbutton.vue";
@@ -30,6 +32,30 @@ export default {
         BasicTitle,
         BasicLogo,
         BasicTextButton,
+    },
+    methods: {
+        async sendVerificationEmail() {
+            if (!this.email) {
+                alert("이메일을 입력해주세요.");
+                return;
+            }
+
+            try {
+                const response = await axios.post("http://localhost:8080/members/find-password", {
+                    email: this.email,
+                });
+
+                alert(response.data.message);
+                this.$router.push("/login");
+            } catch (error) {
+                console.error("인증 메일 전송 실패:", error);
+                if (error.response?.data?.message) {
+                    alert(error.response.data.message);
+                } else {
+                    alert("인증 메일 전송 중 오류가 발생했습니다.");
+                }
+            }
+        },
     },
 };
 </script>
