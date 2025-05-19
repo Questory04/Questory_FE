@@ -38,11 +38,20 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">설명</label>
+                <label class="form-label">퀘스트 설명</label>
                 <textarea
                     class="form-textarea"
                     placeholder="퀘스트에 대한 설명을 입력하세요"
                     v-model="formData.description"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">스탬프 설명</label>
+                <textarea
+                    class="form-textarea"
+                    placeholder="스탬프에 대한 설명을 입력하세요"
+                    v-model="formData.stampDescription"
                 ></textarea>
             </div>
 
@@ -125,6 +134,7 @@ export default {
                 title: "",
                 difficulty: "EASY",
                 description: "",
+                stampDescription: "",
                 visibility: "public",
             },
             // 검색 모달 관련 상태
@@ -193,6 +203,11 @@ export default {
 
             if (!this.formData.description.trim()) {
                 alert("퀘스트 설명을 입력해주세요");
+                return;
+            }
+
+            if (!this.formData.stampDescription.trim()) {
+                alert("스탬프 설명을 입력해주세요");
                 return;
             }
 
