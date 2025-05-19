@@ -34,11 +34,20 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">설명</label>
+                <label class="form-label">퀘스트 설명</label>
                 <textarea
                     class="form-textarea"
                     placeholder="퀘스트에 대한 설명을 입력하세요"
                     v-model="formData.description"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">스탬프 설명</label>
+                <textarea
+                    class="form-textarea"
+                    placeholder="스탬프에 대한 설명을 입력하세요"
+                    v-model="formData.stampDescription"
                 ></textarea>
             </div>
 
@@ -100,7 +109,8 @@ export default {
                 address: "서울특별시 용산구 남산공원길 105",
                 title: "남산타워 가자",
                 difficulty: "MEDIUM",
-                description:
+                description: "서울의 랜드마크 ! 남산타워에서 가보세요 ~",
+                stampDescription:
                     "서울 남산타워를 방문하고 퀘스트를 완료하여 획득한 스탬프입니다. 남산타워에서 서울 전경을 구경했습니다.",
                 visibility: "public",
             },
@@ -132,6 +142,11 @@ export default {
             }
 
             if (!this.formData.description.trim()) {
+                alert("퀘스트 설명을 입력해주세요");
+                return;
+            }
+
+            if (!this.formData.stampDescription.trim()) {
                 alert("퀘스트 설명을 입력해주세요");
                 return;
             }
