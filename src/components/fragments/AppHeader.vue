@@ -3,16 +3,29 @@
         <div class="container">
             <div class="logo">Questory</div>
             <nav class="nav-menu">
-                <a href="/login" class="nav-link">로그인</a>
-                <a href="/signup" class="nav-link">회원가입</a>
+                <template v-if="isLoggedIn">
+                    <a href="/profile" class="nav-link">마이페이지</a>
+                    <a href="#" class="nav-link" @click.prevent="logout">로그아웃</a>
+                </template>
+                <template v-else>
+                    <a href="/login" class="nav-link">로그인</a>
+                    <a href="/signup" class="nav-link">회원가입</a>
+                </template>
             </nav>
         </div>
     </header>
 </template>
 
-<script>
-export default {
-    name: "AppHeader",
+<script setup>
+import { useAuthStore } from "@/stores/auth";
+import { computed } from "vue";
+
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isLoggedIn);
+
+const logout = () => {
+    authStore.clearTokens();
+    window.location.href = "/";
 };
 </script>
 
