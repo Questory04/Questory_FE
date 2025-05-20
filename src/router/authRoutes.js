@@ -20,6 +20,11 @@ export default [
         component: () => import("@/views/auth/EditProfilePage.vue"),
     },
     {
+        path: "/edit-password",
+        name: "edit-password",
+        component: () => import("@/views/auth/EditPasswordPage.vue"),
+    },
+    {
         path: "/mypage",
         name: "mypage",
         component: () => import("@/views/auth/MypagePage.vue"),

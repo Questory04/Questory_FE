@@ -1,38 +1,8 @@
 <template>
     <div class="edit-profile-page">
-        <!-- 헤더 로고 -->
-        <!-- <header class="header">
-            <h1 class="logo">Questory</h1>
-            <div class="profile-icon">
-                <div class="avatar"></div>
-            </div>
-        </header> -->
-
-        <!-- 본문 영역 -->
         <div class="content">
-            <!-- 페이지 제목 -->
             <h2 class="page-title">회원 정보 수정</h2>
 
-            <!-- 프로필 이미지 섹션 -->
-            <div class="profile-image-section">
-                <div class="profile-image">
-                    <div class="profile-circle">
-                        <img v-if="previewImage" :src="previewImage" alt="Profile Preview" class="preview-image" />
-                    </div>
-                    <label for="profile-input" class="camera-button">
-                        <span class="camera-icon"></span>
-                        <input
-                            type="file"
-                            id="profile-input"
-                            class="profile-input-hidden"
-                            @change="onFileSelected"
-                            accept="image/*"
-                        />
-                    </label>
-                </div>
-            </div>
-
-            <!-- 폼 영역 -->
             <form @submit.prevent="saveProfile" class="edit-form">
                 <!-- 닉네임 필드 -->
                 <div class="form-group">
@@ -49,11 +19,24 @@
                     </div>
                 </div>
 
-                <!-- 칭호호 필드 -->
+                <!-- 칭호 필드 -->
                 <div class="form-group">
                     <label for="title">칭호</label>
                     <div class="input-container">
-                        <input type="text" id="title" v-model="userInfo.title" class="form-input" placeholder="칭호" />
+                        <select
+                            id="title"
+                            v-model="userInfo.titleId"
+                            class="form-input"
+                        >
+                            <option disabled value="">칭호를 선택하세요</option>
+                            <option
+                                v-for="title in titleList"
+                                :key="title.titleId"
+                                :value="title.titleId"
+                            >
+                                {{ title.name }}
+                            </option>
+                        </select>
                         <div class="input-focus-indicator"></div>
                     </div>
                 </div>
@@ -62,13 +45,15 @@
                 <div class="form-group">
                     <label for="referralCode">추천 모드</label>
                     <div class="input-container">
-                        <input
-                            type="text"
+                        <select
                             id="referralCode"
-                            v-model="userInfo.referralCode"
+                            v-model.number="userInfo.referralCode"
                             class="form-input"
-                            placeholder="추천 모드"
-                        />
+                        >
+                            <option disabled value="">모드를 선택하세요</option>
+                            <option :value="0">일상 모드</option>
+                            <option :value="1">여행 모드</option>
+                        </select>
                         <div class="input-focus-indicator"></div>
                     </div>
                 </div>
@@ -78,7 +63,11 @@
                     <button type="submit" class="btn btn-save">
                         <span class="btn-text">저장</span>
                     </button>
-                    <button type="button" class="btn btn-cancel" @click="cancel">
+                    <button
+                        type="button"
+                        class="btn btn-cancel"
+                        @click="cancel"
+                    >
                         <span class="btn-text">취소</span>
                     </button>
                 </div>
@@ -88,68 +77,80 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "EditProfilePage",
     data() {
         return {
             userInfo: {
                 nickname: "",
-                title: "",
-                referralCode: "",
-                profileImage: null,
+                titleId: "",
+                referralCode: null, // 0: 일상모드, 1: 여행모드
             },
-            previewImage: null,
+            titleList: [],
         };
     },
+    mounted() {
+        this.fetchTitles();
+    },
     methods: {
-        onFileSelected(event) {
-            const file = event.target.files[0];
-            if (file) {
-                this.userInfo.profileImage = file;
-                this.createPreviewImage(file);
-            }
+        fetchTitles() {
+            axios
+                .get("http://localhost:8080/title", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "accessToken"
+                        )}`,
+                    },
+                })
+                .then((res) => {
+                    this.titleList = res.data;
+                })
+                .catch((err) => {
+                    console.error("칭호 목록 불러오기 실패:", err);
+                });
         },
-        createPreviewImage(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.previewImage = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        getTitleNameById(titleId) {
+            const title = this.titleList.find((t) => t.titleId === titleId);
+            return title ? title.name : "";
         },
         saveProfile() {
-            // 프로필 저장 로직
-            console.log("프로필 저장:", this.userInfo);
+            const payload = {
+                nickname: this.userInfo.nickname,
+                title: this.getTitleNameById(this.userInfo.titleId),
+                mode: this.userInfo.referralCode === 1,
+            };
 
-            // FormData를 사용하여 이미지 업로드 처리
-            const formData = new FormData();
-            formData.append("nickname", this.userInfo.nickname);
-            formData.append("title", this.userInfo.title);
-            formData.append("referralCode", this.userInfo.referralCode);
-            if (this.userInfo.profileImage) {
-                formData.append("profileImage", this.userInfo.profileImage);
-            }
-
-            // API 호출 예시
-            // this.$http.post('/api/user/profile', formData)
-            //   .then(response => {
-            //     this.$router.push('/mypage');
-            //   })
-            //   .catch(error => {
-            //     console.error('프로필 저장 중 오류 발생:', error);
-            //   });
-
-            // 임시로 페이지 이동
-            this.$router.push("/mypage");
+            axios
+                .patch("http://localhost:8080/me/profile", payload, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "accessToken"
+                        )}`,
+                        "Content-Type": "application/json",
+                    },
+                })
+                .then(() => {
+                    alert("프로필이 수정되었습니다.");
+                    this.$router.push("/mypage");
+                })
+                .catch((err) => {
+                    console.error("프로필 수정 실패:", err);
+                    alert("수정 중 오류가 발생했습니다.");
+                });
         },
         cancel() {
-            // 변경 사항이 있는지 확인
             if (
                 this.userInfo.nickname ||
-                this.userInfo.title ||
-                this.userInfo.referralCode ||
-                this.userInfo.profileImage
+                this.userInfo.titleId ||
+                this.userInfo.referralCode !== null
             ) {
-                if (confirm("변경 사항이 저장되지 않을 수 있습니다. 정말로 취소하시겠습니까?")) {
+                if (
+                    confirm(
+                        "변경 사항이 저장되지 않을 수 있습니다. 정말로 취소하시겠습니까?"
+                    )
+                ) {
                     this.$router.push("/mypage");
                 }
             } else {
@@ -243,7 +244,11 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(240, 249, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(240, 249, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
     pointer-events: none;
     z-index: -1;
 }
