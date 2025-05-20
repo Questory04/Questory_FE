@@ -4,7 +4,7 @@
             <div class="logo">Questory</div>
             <nav class="nav-menu">
                 <template v-if="isLoggedIn">
-                    <a href="/profile" class="nav-link">마이페이지</a>
+                    <a href="/myPage" class="nav-link">마이페이지</a>
                     <a href="#" class="nav-link" @click.prevent="logout">로그아웃</a>
                 </template>
                 <template v-else>
