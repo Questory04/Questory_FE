@@ -17,7 +17,12 @@
             <div class="profile-image-section">
                 <div class="profile-image">
                     <div class="profile-circle">
-                        <img v-if="previewImage" :src="previewImage" alt="Profile Preview" class="preview-image" />
+                        <img
+                            v-if="previewImage"
+                            :src="previewImage"
+                            alt="Profile Preview"
+                            class="preview-image"
+                        />
                     </div>
                     <label for="profile-input" class="camera-button">
                         <span class="camera-icon"></span>
@@ -49,11 +54,24 @@
                     </div>
                 </div>
 
-                <!-- 칭호호 필드 -->
+                <!-- 칭호 필드 -->
                 <div class="form-group">
                     <label for="title">칭호</label>
                     <div class="input-container">
-                        <input type="text" id="title" v-model="userInfo.title" class="form-input" placeholder="칭호" />
+                        <select
+                            id="title"
+                            v-model="userInfo.titleId"
+                            class="form-input"
+                        >
+                            <option disabled value="">칭호를 선택하세요</option>
+                            <option
+                                v-for="title in titleList"
+                                :key="title.titleId"
+                                :value="title.titleId"
+                            >
+                                {{ title.name }}
+                            </option>
+                        </select>
                         <div class="input-focus-indicator"></div>
                     </div>
                 </div>
@@ -78,7 +96,11 @@
                     <button type="submit" class="btn btn-save">
                         <span class="btn-text">저장</span>
                     </button>
-                    <button type="button" class="btn btn-cancel" @click="cancel">
+                    <button
+                        type="button"
+                        class="btn btn-cancel"
+                        @click="cancel"
+                    >
                         <span class="btn-text">취소</span>
                     </button>
                 </div>
@@ -88,20 +110,42 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "EditProfilePage",
     data() {
         return {
             userInfo: {
                 nickname: "",
-                title: "",
+                titleId: "", // 🔄 title이 아니라 titleId로 바꿈
                 referralCode: "",
                 profileImage: null,
             },
             previewImage: null,
+            titleList: [], // [{ titleId: 3, name: '여행의 시작', ... }, ...]
         };
     },
+    mounted() {
+        this.fetchTitles(); // 🔥 페이지 진입 시 호출
+    },
     methods: {
+        fetchTitles() {
+            axios
+                .get("http://localhost:8080/title", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "accessToken"
+                        )}`,
+                    },
+                })
+                .then((res) => {
+                    this.titleList = res.data; // 예: ['용감한 모험가', '탐험가', '지식왕']
+                })
+                .catch((err) => {
+                    console.error("칭호 목록 불러오기 실패:", err);
+                });
+        },
         onFileSelected(event) {
             const file = event.target.files[0];
             if (file) {
@@ -117,39 +161,33 @@ export default {
             reader.readAsDataURL(file);
         },
         saveProfile() {
-            // 프로필 저장 로직
             console.log("프로필 저장:", this.userInfo);
 
-            // FormData를 사용하여 이미지 업로드 처리
             const formData = new FormData();
             formData.append("nickname", this.userInfo.nickname);
-            formData.append("title", this.userInfo.title);
+            formData.append("titleId", this.userInfo.titleId);
             formData.append("referralCode", this.userInfo.referralCode);
             if (this.userInfo.profileImage) {
                 formData.append("profileImage", this.userInfo.profileImage);
             }
 
-            // API 호출 예시
-            // this.$http.post('/api/user/profile', formData)
-            //   .then(response => {
-            //     this.$router.push('/mypage');
-            //   })
-            //   .catch(error => {
-            //     console.error('프로필 저장 중 오류 발생:', error);
-            //   });
+            // 실제 저장 API 호출은 아래 주석 참고
+            // axios.post('/api/user/profile', formData).then(...)
 
-            // 임시로 페이지 이동
             this.$router.push("/mypage");
         },
         cancel() {
-            // 변경 사항이 있는지 확인
             if (
                 this.userInfo.nickname ||
                 this.userInfo.title ||
                 this.userInfo.referralCode ||
                 this.userInfo.profileImage
             ) {
-                if (confirm("변경 사항이 저장되지 않을 수 있습니다. 정말로 취소하시겠습니까?")) {
+                if (
+                    confirm(
+                        "변경 사항이 저장되지 않을 수 있습니다. 정말로 취소하시겠습니까?"
+                    )
+                ) {
                     this.$router.push("/mypage");
                 }
             } else {
@@ -243,7 +281,11 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(240, 249, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(240, 249, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
     pointer-events: none;
     z-index: -1;
 }
