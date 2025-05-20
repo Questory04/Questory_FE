@@ -11,8 +11,8 @@
                             <div class="avatar"></div>
                         </div>
                         <div class="user-details">
-                            <div class="username">{닉네임}</div>
-                            <div class="email">example@email.com</div>
+                            <div class="username">{{ user.nickname }}</div>
+                            <div class="email">{{ user.email }}</div>
                         </div>
                     </div>
                 </div>
@@ -20,15 +20,20 @@
 
             <!-- 경험치 카드 -->
             <div class="info-card">
-                <div class="card-header">경험치</div>
+                <div class="card-header">{{ user.currentExp }}</div>
                 <div class="card-content">
                     <div class="level-info">
-                        <div class="badge">{칭호}</div>
-                        <div class="level">Lv 3</div>
-                        <div class="exp-points">231/243</div>
+                        <div class="badge">{{ user.title }}</div>
+                        <div class="level">Lv {{ level }}</div>
+                        <div class="exp-points">
+                            {{ currentExpInLevel }} / {{ maxExpForLevel }}
+                        </div>
                     </div>
                     <div class="progress-container">
-                        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+                        <div
+                            class="progress-bar"
+                            :style="{ width: progressPercentage + '%' }"
+                        ></div>
                     </div>
                 </div>
             </div>
@@ -38,55 +43,82 @@
         <div class="settings-container">
             <div class="settings-header">정보 수정 및 탈퇴</div>
             <div class="settings-content">
-                <button class="btn btn-primary" @click="editUserInfo">정보 수정</button>
-                <button class="btn btn-primary" @click="changePassword">비밀번호 변경</button>
-                <button class="btn btn-outline" @click="withdrawAccount">회원 탈퇴</button>
+                <button class="btn btn-primary" @click="editUserInfo">
+                    정보 수정
+                </button>
+                <button class="btn btn-primary" @click="changePassword">
+                    비밀번호 변경
+                </button>
+                <button class="btn btn-outline" @click="withdrawAccount">
+                    회원 탈퇴
+                </button>
             </div>
         </div>
     </div>
 </template>
 
-<script>
-export default {
-    name: "MyPage",
-    data() {
-        return {
-            user: {
-                nickname: "{닉네임}",
-                email: "example@email.com",
-                level: 3,
-                badge: "{칭호}",
-                currentExp: 231,
-                requiredExp: 243,
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+import { useRouter } from "vue-router";
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+const user = ref({
+    nickname: "",
+    email: "",
+    badge: "",
+    currentExp: 0,
+});
+
+const level = computed(() => Math.floor(user.value.currentExp / 100));
+const currentExpInLevel = computed(() => user.value.currentExp % 100);
+const maxExpForLevel = 100;
+
+const progressPercentage = computed(() => {
+    return (currentExpInLevel.value / maxExpForLevel) * 100;
+});
+
+const getUserInfo = async () => {
+    try {
+        const res = await axios.get("http://localhost:8080/me", {
+            headers: {
+                Authorization: `Bearer ${authStore.accessToken}`,
             },
-        };
-    },
-    computed: {
-        progressPercentage() {
-            return (this.user.currentExp / this.user.requiredExp) * 100;
-        },
-    },
-    methods: {
-        editUserInfo() {
-            // 정보 수정 페이지로 이동하는 로직
-            this.$router.push("/edit-profile");
-        },
-        changePassword() {
-            // 비밀번호 변경 페이지로 이동하는 로직
-            this.$router.push("/change-password");
-        },
-        withdrawAccount() {
-            // 회원 탈퇴 처리 로직
-            if (confirm("정말로 탈퇴하시겠습니까?")) {
-                // 탈퇴 API 호출
-                // this.$http.post('/api/user/withdraw')
-                //   .then(() => {
-                //     this.$router.push('/login');
-                //   });
-            }
-        },
-    },
+        });
+
+        const data = res.data;
+
+        user.value.nickname = data.nickname;
+        user.value.email = data.email;
+        user.value.badge = data.title;
+        user.value.currentExp = data.exp;
+    } catch (error) {
+        console.error("내 정보 불러오기 실패:", error);
+        alert("로그인이 필요합니다.");
+        router.push("/login");
+    }
 };
+
+const editUserInfo = () => {
+    router.push("/edit-profile");
+};
+
+const changePassword = () => {
+    router.push("/change-password");
+};
+
+const withdrawAccount = () => {
+    if (confirm("정말로 탈퇴하시겠습니까?")) {
+        // 탈퇴 API 연결 예정
+    }
+};
+
+onMounted(() => {
+    getUserInfo();
+});
 </script>
 
 <style scoped>
