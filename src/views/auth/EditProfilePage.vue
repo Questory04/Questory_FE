@@ -1,43 +1,8 @@
 <template>
     <div class="edit-profile-page">
-        <!-- 헤더 로고 -->
-        <!-- <header class="header">
-            <h1 class="logo">Questory</h1>
-            <div class="profile-icon">
-                <div class="avatar"></div>
-            </div>
-        </header> -->
-
-        <!-- 본문 영역 -->
         <div class="content">
-            <!-- 페이지 제목 -->
             <h2 class="page-title">회원 정보 수정</h2>
 
-            <!-- 프로필 이미지 섹션 -->
-            <div class="profile-image-section">
-                <div class="profile-image">
-                    <div class="profile-circle">
-                        <img
-                            v-if="previewImage"
-                            :src="previewImage"
-                            alt="Profile Preview"
-                            class="preview-image"
-                        />
-                    </div>
-                    <label for="profile-input" class="camera-button">
-                        <span class="camera-icon"></span>
-                        <input
-                            type="file"
-                            id="profile-input"
-                            class="profile-input-hidden"
-                            @change="onFileSelected"
-                            accept="image/*"
-                        />
-                    </label>
-                </div>
-            </div>
-
-            <!-- 폼 영역 -->
             <form @submit.prevent="saveProfile" class="edit-form">
                 <!-- 닉네임 필드 -->
                 <div class="form-group">
@@ -82,7 +47,7 @@
                     <div class="input-container">
                         <select
                             id="referralCode"
-                            v-model="userInfo.referralCode"
+                            v-model.number="userInfo.referralCode"
                             class="form-input"
                         >
                             <option disabled value="">모드를 선택하세요</option>
@@ -121,10 +86,8 @@ export default {
             userInfo: {
                 nickname: "",
                 titleId: "",
-                referralCode: "", // 문자열 "" → 숫자 0 또는 1로 바뀌므로 주의
-                profileImage: null,
+                referralCode: null, // 0: 일상모드, 1: 여행모드
             },
-            previewImage: null,
             titleList: [],
         };
     },
@@ -148,38 +111,40 @@ export default {
                     console.error("칭호 목록 불러오기 실패:", err);
                 });
         },
-        onFileSelected(event) {
-            const file = event.target.files[0];
-            if (file) {
-                this.userInfo.profileImage = file;
-                this.createPreviewImage(file);
-            }
-        },
-        createPreviewImage(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.previewImage = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        getTitleNameById(titleId) {
+            const title = this.titleList.find((t) => t.titleId === titleId);
+            return title ? title.name : "";
         },
         saveProfile() {
-            console.log("프로필 저장:", this.userInfo);
+            const payload = {
+                nickname: this.userInfo.nickname,
+                title: this.getTitleNameById(this.userInfo.titleId),
+                mode: this.userInfo.referralCode === 1,
+            };
 
-            const formData = new FormData();
-            formData.append("nickname", this.userInfo.nickname);
-            formData.append("titleId", this.userInfo.titleId);
-            formData.append("referralCode", Number(this.userInfo.referralCode));
-            if (this.userInfo.profileImage) {
-                formData.append("profileImage", this.userInfo.profileImage);
-            }
-            this.$router.push("/mypage");
+            axios
+                .patch("http://localhost:8080/me/profile", payload, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "accessToken"
+                        )}`,
+                        "Content-Type": "application/json",
+                    },
+                })
+                .then(() => {
+                    alert("프로필이 수정되었습니다.");
+                    this.$router.push("/mypage");
+                })
+                .catch((err) => {
+                    console.error("프로필 수정 실패:", err);
+                    alert("수정 중 오류가 발생했습니다.");
+                });
         },
         cancel() {
             if (
                 this.userInfo.nickname ||
-                this.userInfo.title ||
-                this.userInfo.referralCode ||
-                this.userInfo.profileImage
+                this.userInfo.titleId ||
+                this.userInfo.referralCode !== null
             ) {
                 if (
                     confirm(
