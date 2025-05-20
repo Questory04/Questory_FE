@@ -110,9 +110,25 @@ const changePassword = () => {
     router.push("/change-password");
 };
 
-const withdrawAccount = () => {
+const withdrawAccount = async () => {
     if (confirm("정말로 탈퇴하시겠습니까?")) {
-        // 탈퇴 API 연결 예정
+        try {
+            await axios.patch("http://localhost:8080/me/withdraw", null, {
+                headers: {
+                    Authorization: `Bearer ${authStore.accessToken}`,
+                },
+            });
+
+            console.log("요청 보냄ㅠㅠ");
+
+            // 토큰 제거 및 로그아웃 처리
+            authStore.clearTokens();
+            alert("정상적으로 탈퇴되었습니다.");
+            router.push("/login");
+        } catch (error) {
+            console.error("회원 탈퇴 실패:", error);
+            alert("탈퇴 처리 중 오류가 발생했습니다.");
+        }
     }
 };
 
