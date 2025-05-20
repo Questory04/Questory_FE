@@ -80,13 +80,15 @@
                 <div class="form-group">
                     <label for="referralCode">추천 모드</label>
                     <div class="input-container">
-                        <input
-                            type="text"
+                        <select
                             id="referralCode"
                             v-model="userInfo.referralCode"
                             class="form-input"
-                            placeholder="추천 모드"
-                        />
+                        >
+                            <option disabled value="">모드를 선택하세요</option>
+                            <option :value="0">일상 모드</option>
+                            <option :value="1">여행 모드</option>
+                        </select>
                         <div class="input-focus-indicator"></div>
                     </div>
                 </div>
@@ -118,16 +120,16 @@ export default {
         return {
             userInfo: {
                 nickname: "",
-                titleId: "", // 🔄 title이 아니라 titleId로 바꿈
-                referralCode: "",
+                titleId: "",
+                referralCode: "", // 문자열 "" → 숫자 0 또는 1로 바뀌므로 주의
                 profileImage: null,
             },
             previewImage: null,
-            titleList: [], // [{ titleId: 3, name: '여행의 시작', ... }, ...]
+            titleList: [],
         };
     },
     mounted() {
-        this.fetchTitles(); // 🔥 페이지 진입 시 호출
+        this.fetchTitles();
     },
     methods: {
         fetchTitles() {
@@ -140,7 +142,7 @@ export default {
                     },
                 })
                 .then((res) => {
-                    this.titleList = res.data; // 예: ['용감한 모험가', '탐험가', '지식왕']
+                    this.titleList = res.data;
                 })
                 .catch((err) => {
                     console.error("칭호 목록 불러오기 실패:", err);
@@ -166,14 +168,10 @@ export default {
             const formData = new FormData();
             formData.append("nickname", this.userInfo.nickname);
             formData.append("titleId", this.userInfo.titleId);
-            formData.append("referralCode", this.userInfo.referralCode);
+            formData.append("referralCode", Number(this.userInfo.referralCode));
             if (this.userInfo.profileImage) {
                 formData.append("profileImage", this.userInfo.profileImage);
             }
-
-            // 실제 저장 API 호출은 아래 주석 참고
-            // axios.post('/api/user/profile', formData).then(...)
-
             this.$router.push("/mypage");
         },
         cancel() {
