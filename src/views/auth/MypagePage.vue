@@ -107,7 +107,7 @@ const editUserInfo = () => {
 };
 
 const changePassword = () => {
-    router.push("/change-password");
+    router.push("/edit-password");
 };
 
 const withdrawAccount = async () => {
@@ -119,9 +119,6 @@ const withdrawAccount = async () => {
                 },
             });
 
-            console.log("요청 보냄ㅠㅠ");
-
-            // 토큰 제거 및 로그아웃 처리
             authStore.clearTokens();
             alert("정상적으로 탈퇴되었습니다.");
             router.push("/login");
