@@ -44,7 +44,11 @@
                 <div v-for="stamp in filteredStamps" :key="stamp.id" class="stamp-card">
                     <div class="stamp-image">
                         <div class="circle">
-                            <span>{{ stamp.url }}</span>
+                            <img
+                                :src="require(`@/assets/images/stamps/${stamp.url}.png`)"
+                                alt="이미지 찾을 수 없음"
+                                class="circle"
+                            />
                         </div>
                     </div>
                     <div class="stamp-info">
@@ -58,6 +62,52 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 페이지네이션 -->
+            <div v-if="pagination.totalPages > 1" class="pagination">
+                <!-- 첫 페이지 이동 버튼 -->
+                <button class="pagination-btn" :disabled="pagination.currentPage === 1" @click="changePage(1)">
+                    &laquo;
+                </button>
+
+                <!-- 이전 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === 1"
+                    @click="changePage(pagination.currentPage - 1)"
+                >
+                    &lsaquo;
+                </button>
+
+                <!-- 페이지 번호 버튼 -->
+                <button
+                    v-for="page in visiblePageNumbers"
+                    :key="page"
+                    class="pagination-btn"
+                    :class="{ active: pagination.currentPage === page }"
+                    @click="changePage(page)"
+                >
+                    {{ page }}
+                </button>
+
+                <!-- 다음 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    @click="changePage(pagination.currentPage + 1)"
+                >
+                    &rsaquo;
+                </button>
+
+                <!-- 마지막 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    @click="changePage(pagination.totalPages)"
+                >
+                    &raquo;
+                </button>
+            </div>
         </main>
 
         <!-- 상세 정보 모달 -->
@@ -67,7 +117,11 @@
                 <h3 class="modal-title">{{ selectedStamp.title }}</h3>
                 <div class="stamp-detail-image">
                     <div class="circle large">
-                        <span>{{ selectedStamp.imageName }}</span>
+                        <img
+                            :src="require(`@/assets/images/stamps/${selectedStamp.url}.png`)"
+                            alt="이미지 찾을 수 없음"
+                            class="circle large"
+                        />
                     </div>
                 </div>
                 <div class="stamp-detail-info">
@@ -80,10 +134,7 @@
                         {{ selectedStamp.difficulty }}
                     </div>
                     <p class="stamp-description">
-                        {{
-                            selectedStamp.description ||
-                            "이 스탬프는 특별한 퀘스트를 완료하여 획득한 기념 스탬프입니다."
-                        }}
+                        {{ selectedStamp.description }}
                     </p>
                 </div>
             </div>
@@ -92,96 +143,35 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+
+// API 기본 URL
+const API_URL = "http://localhost:8080";
+
+// 인증 스토어 가져오기
+const authStore = useAuthStore();
+
 export default {
     name: "StampCollection",
     data() {
         return {
             selectedDifficulty: "all",
             selectedStamp: null,
-            stamps: [
-                {
-                    id: 1,
-                    title: "퀘스트 이름",
-                    url: "스탬프 이미지",
-                    date: "20XX.XX.XX",
-                    contentTypeTitle: "# 관광지 타입",
-                    sidoName: "# 시도",
-                    difficulty: "EASY",
-                    description: "이 스탬프는 관광지 탐험 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-                {
-                    id: 2,
-                    title: "남산타워 가자",
-                    url: "남산타워 스탬프 이미지",
-                    date: "2025.05.05",
-                    contentTypeTitle: "# 관광지",
-                    sidoName: "# 서울시",
-                    difficulty: "MEDIUM",
-                    description:
-                        "서울 남산타워를 방문하고 퀘스트를 완료하여 획득한 스탬프입니다. 남산타워에서 서울 전경을 구경했습니다.",
-                },
-                {
-                    id: 3,
-                    title: "송현아 쇼핑",
-                    url: "송도 스탬프",
-                    date: "2025.07.20",
-                    contentTypeTitle: "# 쇼핑",
-                    sidoName: "# 인천시",
-                    difficulty: "HARD",
-                    description: "인천 송도에서 쇼핑 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-                {
-                    id: 4,
-                    title: "한강 피크닉",
-                    url: "스탬프 이미지",
-                    date: "2025.06.10",
-                    contentTypeTitle: "# 레저",
-                    sidoName: "# 서울시",
-                    difficulty: "EASY",
-                    description: "한강에서 피크닉 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-                {
-                    id: 5,
-                    title: "경복궁 탐방",
-                    url: "남산타워 스탬프 이미지",
-                    date: "2025.04.15",
-                    contentTypeTitle: "# 관광지",
-                    sidoName: "# 서울시",
-                    difficulty: "MEDIUM",
-                    description: "경복궁을 탐방하고 역사 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-                {
-                    id: 6,
-                    title: "부산 해운대 여행",
-                    url: "송도 스탬프",
-                    date: "2025.08.01",
-                    contentTypeTitle: "# 관광지",
-                    sidoName: "# 부산시",
-                    difficulty: "HARD",
-                    description: "부산 해운대에서 바다 관련 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-                {
-                    id: 7,
-                    title: "부산 해운대 여행",
-                    url: "송도 스탬프",
-                    date: "2025.08.01",
-                    contentTypeTitle: "# 관광지",
-                    sidoName: "# 부산시",
-                    difficulty: "HARD",
-                    description: "부산 해운대에서 바다 관련 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-                {
-                    id: 8,
-                    title: "부산 해운대 여행",
-                    url: "송도 스탬프",
-                    date: "2025.08.01",
-                    contentTypeTitle: "# 관광지",
-                    sidoName: "# 부산시",
-                    difficulty: "HARD",
-                    description: "부산 해운대에서 바다 관련 퀘스트를 완료하여 획득한 스탬프입니다.",
-                },
-            ],
+            stamps: [],
+            pagination: {
+                currentPage: 1,
+                totalItems: 0,
+                totalPages: 0,
+                pageSize: 6,
+            },
+            loading: false,
+            error: null,
         };
+    },
+    created() {
+        // 컴포넌트가 생성될 때 스탬프 데이터 로드
+        this.fetchStamps();
     },
     computed: {
         filteredStamps() {
@@ -192,8 +182,89 @@ export default {
         },
     },
     methods: {
+        // 백엔드에서 스탬프 데이터 가져오기
+        fetchStamps() {
+            this.loading = true;
+            this.error = null;
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                this.error = "로그인이 필요합니다.";
+                this.loading = false;
+                return;
+            }
+
+            axios
+                .get(`${API_URL}/stamps`, {
+                    params: {
+                        page: this.pagination.currentPage,
+                        size: this.pagination.pageSize,
+                        difficulty: this.selectedDifficulty === "all" ? null : this.selectedDifficulty,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    const { stamps, pagination } = response.data;
+
+                    // 스탬프 데이터 변환 (백엔드 DTO 형식에 맞게 조정)
+                    this.stamps = stamps.map((stamp) => ({
+                        id: stamp.id || Math.random().toString(),
+                        title: stamp.title,
+                        url: stamp.contentTypeId, // 실제 이미지 URL로 변경 필요
+                        date: this.formatDate(stamp.date),
+                        contentTypeTitle: `# ${stamp.contentTypeName}`,
+                        sidoName: `# ${stamp.sidoName}`,
+                        difficulty: stamp.difficulty,
+                        description: stamp.description || "설명이 없습니다.",
+                    }));
+
+                    // 페이지네이션 정보 업데이트
+                    this.pagination = pagination;
+                })
+                .catch((error) => {
+                    console.error("스탬프 데이터를 불러오는 중 오류가 발생했습니다:", error);
+
+                    if (error.response) {
+                        // 서버 응답이 있는 경우
+                        if (error.response.status === 401) {
+                            this.error = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                            // 로그인 페이지로 리다이렉트 (필요시)
+                            // this.$router.push('/login');
+                        } else {
+                            this.error = `오류가 발생했습니다: ${error.response.data.message || "알 수 없는 오류"}`;
+                        }
+                    } else {
+                        this.error = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                    }
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
+        // 날짜 형식 변환 (YYYY-MM-DD -> YYYY.MM.DD)
+        formatDate(dateString) {
+            if (!dateString) return "";
+
+            // ISO 형식 또는 문자열 날짜를 처리
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}.${month}.${day}`;
+        },
+        // 페이지 변경 처리
+        changePage(page) {
+            this.pagination.currentPage = page;
+            this.fetchStamps();
+        },
         filterStamps(difficulty) {
             this.selectedDifficulty = difficulty;
+            this.pagination.currentPage = 1;
+            this.fetchStamps();
         },
         openDetailModal(stamp) {
             this.selectedStamp = stamp;
@@ -371,6 +442,43 @@ body {
 
 .detail-btn:hover {
     background-color: #4a90e2;
+}
+
+/* 페이지네이션 스타일 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-btn.active {
+    background-color: #4a90e2;
+    color: white;
+    border-color: #4a90e2;
+}
+
+.pagination-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+    background-color: #f8f9fa;
 }
 
 /* 모달 스타일 */
