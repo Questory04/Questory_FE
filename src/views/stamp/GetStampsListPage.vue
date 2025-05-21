@@ -62,6 +62,52 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 페이지네이션 -->
+            <div v-if="pagination.totalPages > 1" class="pagination">
+                <!-- 첫 페이지 이동 버튼 -->
+                <button class="pagination-btn" :disabled="pagination.currentPage === 1" @click="changePage(1)">
+                    &laquo;
+                </button>
+
+                <!-- 이전 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === 1"
+                    @click="changePage(pagination.currentPage - 1)"
+                >
+                    &lsaquo;
+                </button>
+
+                <!-- 페이지 번호 버튼 -->
+                <button
+                    v-for="page in visiblePageNumbers"
+                    :key="page"
+                    class="pagination-btn"
+                    :class="{ active: pagination.currentPage === page }"
+                    @click="changePage(page)"
+                >
+                    {{ page }}
+                </button>
+
+                <!-- 다음 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    @click="changePage(pagination.currentPage + 1)"
+                >
+                    &rsaquo;
+                </button>
+
+                <!-- 마지막 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    @click="changePage(pagination.totalPages)"
+                >
+                    &raquo;
+                </button>
+            </div>
         </main>
 
         <!-- 상세 정보 모달 -->
@@ -117,7 +163,7 @@ export default {
                 currentPage: 1,
                 totalItems: 0,
                 totalPages: 0,
-                pageSize: 20,
+                pageSize: 6,
             },
             loading: false,
             error: null,
@@ -154,6 +200,7 @@ export default {
                     params: {
                         page: this.pagination.currentPage,
                         size: this.pagination.pageSize,
+                        difficulty: this.selectedDifficulty === "all" ? null : this.selectedDifficulty,
                     },
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -216,6 +263,8 @@ export default {
         },
         filterStamps(difficulty) {
             this.selectedDifficulty = difficulty;
+            this.pagination.currentPage = 1;
+            this.fetchStamps();
         },
         openDetailModal(stamp) {
             this.selectedStamp = stamp;
@@ -393,6 +442,43 @@ body {
 
 .detail-btn:hover {
     background-color: #4a90e2;
+}
+
+/* 페이지네이션 스타일 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-btn.active {
+    background-color: #4a90e2;
+    color: white;
+    border-color: #4a90e2;
+}
+
+.pagination-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+    background-color: #f8f9fa;
 }
 
 /* 모달 스타일 */
