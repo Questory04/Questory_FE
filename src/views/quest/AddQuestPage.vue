@@ -187,7 +187,7 @@ export default {
             this.searchPerformed = true;
 
             try {
-                const response = await axios.get(`${API_URL}/quests/search-attractions`, {
+                const response = await axios.get(`${API_URL}/attractions/search-attractions`, {
                     params: {
                         searchKeyword: this.searchKeyword,
                     },
