@@ -9,7 +9,7 @@
       <button :class="{ active: currentTab === 'blocked' }" @click="setTab('blocked')">차단 목록</button>
     </div>
 
-    <!-- 친구 목록 탭 -->
+    <!-- 친구 목록 -->
     <div v-if="currentTab === 'list'">
       <div class="search-bar">
         <p class="count">현재 친구 수 : {{ friends.length }}명</p>
@@ -17,13 +17,16 @@
       </div>
       <div class="friend-list">
         <div v-for="friend in filteredFriends" :key="friend.email" class="friend-card">
-          <div class="profile" />
-          <div>
-            <p class="nickname">{{ friend.nickname }}</p>
-            <p class="email">{{ friend.email }}</p>
-            <p class="level">Lv {{ getLevel(friend.level) }}</p>
+          <div class="top-content">
+            <div class="profile" />
+            <div class="user-info">
+                <p class="nickname">{{ friend.nickname }}</p>
+                <p class="email">{{ friend.email }}</p>
+                <p class="level">Lv {{ getLevel(friend.exp) }}</p>
+                <p class="badge">{{ friend.title }}</p>
+            </div>
           </div>
-          <div class="actions">
+          <div class="actions-bottom">
             <button class="block">차단하기</button>
             <button class="delete">친구 삭제</button>
           </div>
@@ -31,50 +34,56 @@
       </div>
     </div>
 
-    <!-- 친구 요청 탭 -->
+    <!-- 친구 요청 -->
     <div v-if="currentTab === 'request'">
       <input class="search" v-model="searchEmail" placeholder="이메일 검색" @input="debouncedSearch" />
       <div v-if="searchResult" class="friend-card">
-        <div class="profile" />
-        <div>
-          <p class="nickname">{{ searchResult.nickname }}</p>
-          <p class="email">{{ searchResult.email }}</p>
-          <p class="level">Lv {{ getLevel(searchResult.level) }}</p>
+        <div class="top-content">
+          <div class="profile" />
+          <div class="user-info">
+            <p class="nickname">{{ searchResult.nickname }}</p>
+            <p class="email">{{ searchResult.email }}</p>
+            <p class="level">Lv {{ getLevel(searchResult.level) }}</p>
+          </div>
         </div>
-        <div class="actions">
+        <div class="actions-bottom">
           <button class="request">친구 요청</button>
         </div>
       </div>
       <p v-else-if="searchEmail">검색 결과가 없습니다.</p>
 
-      <div class="requesting-list" v-if="requestingList.length">
+      <div v-if="requestingList.length">
         <h3 class="subtitle">내가 요청한 친구 목록</h3>
         <div class="friend-list">
           <div v-for="req in requestingList" :key="req.email" class="friend-card">
-            <div class="profile" />
-            <div>
-              <p class="nickname">{{ req.nickname }}</p>
-              <p class="email">{{ req.email }}</p>
-              <p class="level">Lv {{ getLevel(req.level) }}</p>
+            <div class="top-content">
+              <div class="profile" />
+              <div class="user-info">
+                <p class="nickname">{{ req.nickname }}</p>
+                <p class="email">{{ req.email }}</p>
+                <p class="level">Lv {{ getLevel(req.level) }}</p>
+              </div>
             </div>
-            <div class="actions">
+            <div class="actions-bottom">
               <button class="delete">요청 취소</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="requesting-list" v-if="receivedRequestList.length">
+      <div v-if="receivedRequestList.length">
         <h3 class="subtitle">받은 친구 요청 목록</h3>
         <div class="friend-list">
           <div v-for="req in receivedRequestList" :key="req.email" class="friend-card">
-            <div class="profile" />
-            <div>
-              <p class="nickname">{{ req.nickname }}</p>
-              <p class="email">{{ req.email }}</p>
-              <p class="level">Lv {{ getLevel(req.level) }}</p>
+            <div class="top-content">
+              <div class="profile" />
+              <div class="user-info">
+                <p class="nickname">{{ req.nickname }}</p>
+                <p class="email">{{ req.email }}</p>
+                <p class="level">Lv {{ getLevel(req.level) }}</p>
+              </div>
             </div>
-            <div class="actions">
+            <div class="actions-bottom">
               <button class="request">수락</button>
               <button class="delete">거절</button>
             </div>
@@ -83,18 +92,20 @@
       </div>
     </div>
 
-    <!-- 차단 목록 탭 -->
+    <!-- 차단 목록 -->
     <div v-if="currentTab === 'blocked'">
       <p class="count">차단한 친구 수 : {{ blockedFriends.length }}명</p>
       <div class="friend-list">
         <div v-for="blocked in blockedFriends" :key="blocked.email" class="friend-card">
-          <div class="profile" />
-          <div>
-            <p class="nickname">{{ blocked.nickname }}</p>
-            <p class="email">{{ blocked.email }}</p>
-            <p class="level">Lv {{ getLevel(blocked.level) }}</p>
+          <div class="top-content">
+            <div class="profile" />
+            <div class="user-info">
+              <p class="nickname">{{ blocked.nickname }}</p>
+              <p class="email">{{ blocked.email }}</p>
+              <p class="level">Lv {{ getLevel(blocked.level) }}</p>
+            </div>
           </div>
-          <div class="actions">
+          <div class="actions-bottom">
             <button class="delete">차단 해제</button>
           </div>
         </div>
@@ -117,17 +128,14 @@ const searchEmail = ref('')
 const searchResult = ref(null)
 
 const friends = ref([])
-
 const requestingList = ref([
   { nickname: '보낸요청1', email: 'sent1@example.com', level: 210 },
   { nickname: '보낸요청2', email: 'sent2@example.com', level: 140 }
 ])
-
 const receivedRequestList = ref([
   { nickname: '받은요청1', email: 'recv1@example.com', level: 320 },
   { nickname: '받은요청2', email: 'recv2@example.com', level: 80 }
 ])
-
 const blockedFriends = ref([
   { nickname: '차단친구', email: 'blocked@example.com', level: 150 }
 ])
@@ -171,9 +179,9 @@ const debouncedSearch = debounce(async () => {
 onMounted(async () => {
   try {
     const res = await axios.get('http://localhost:8080/friends', {
-        headers: {
-            Authorization: `Bearer ${authStore.accessToken}`
-        }
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      }
     })
     friends.value = res.data
   } catch (err) {
@@ -182,118 +190,147 @@ onMounted(async () => {
 })
 </script>
 
-
-
-
 <style scoped>
 .friend-manager {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1rem;
   text-align: center;
 }
+
 .title {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #3399dd;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
+
 .subtitle {
-  color: #666;
-  margin: 2rem 0 1rem;
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1.5rem;
 }
+
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  flex-wrap: wrap;
 }
+
 .tabs button {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.25rem;
   border: 1px solid #ccc;
   background: white;
   border-radius: 20px;
   cursor: pointer;
+  font-size: 1rem;
 }
+
 .tabs button.active {
   background: #3399dd;
   color: white;
   border: none;
 }
+
 .search-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
   gap: 1rem;
 }
-.count {
-  font-weight: bold;
-  margin: 1rem;
-}
+
 .search {
-  width: 60%;
+  flex: 1;
+  min-width: 200px;
   padding: 0.5rem;
   border-radius: 10px;
   border: 1px solid #ccc;
-  min-width: 250px;
-  margin: 1rem;
 }
+
+.count {
+  font-weight: bold;
+}
+
 .friend-list {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem 1.5rem;
   justify-content: space-between;
 }
+
 .friend-card {
   flex: 0 0 calc(50% - 0.75rem);
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 1.5rem 1rem;
-  text-align: left;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+  background-color: #fff;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 140px;
 }
+
+.top-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .profile {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: #eee;
+  flex-shrink: 0;
 }
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: left;
+}
+
 .nickname {
   font-weight: bold;
-  margin-bottom: 0.25rem;
 }
+
 .email, .level {
   font-size: 0.9rem;
   color: #666;
-  margin: 0;
+  line-height: 1.4;
 }
-.actions {
-  margin-left: auto;
+
+.actions-bottom {
   display: flex;
-  flex-direction: column;
+  justify-content: flex-end;
   gap: 0.5rem;
 }
-.actions button {
+
+.actions-bottom button {
   padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 10px;
   cursor: pointer;
+  white-space: nowrap;
 }
-.actions .block {
+
+.block {
   background: #ff6666;
   color: white;
 }
-.actions .delete {
+
+.delete {
   background: #ccc;
   color: black;
 }
-.actions .request {
+
+.request {
   background: #3399dd;
   color: white;
 }
@@ -301,13 +338,6 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .friend-card {
     flex: 1 1 100%;
-  }
-  .search-bar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .search {
-    width: 100%;
   }
 }
 </style>
