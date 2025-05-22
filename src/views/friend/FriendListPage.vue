@@ -178,14 +178,20 @@ const debouncedSearch = debounce(async () => {
 
 onMounted(async () => {
   try {
+    const token = authStore.accessToken || localStorage.getItem('accessToken')
+    console.log('🪪 사용 중인 토큰:', token)
+
     const res = await axios.get('http://localhost:8080/friends', {
       headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
+        Authorization: `Bearer ${token}`
       }
     })
+
+    console.log('📦 응답 데이터:', res.data)
     friends.value = res.data
   } catch (err) {
-    console.error('친구 목록을 불러오지 못했습니다:', err)
+    console.error('❌ 친구 목록을 불러오지 못했습니다:', err)
+    console.error('📛 응답 에러:', err?.response?.data)
   }
 })
 </script>
