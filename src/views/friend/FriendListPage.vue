@@ -9,6 +9,28 @@
       <button :class="{ active: currentTab === 'blocked' }" @click="setTab('blocked')">차단 목록</button>
     </div>
 
+    <!-- 친구 목록 탭 -->
+    <div v-if="currentTab === 'list'">
+      <div class="search-bar">
+        <p class="count">현재 친구 수 : {{ friends.length }}명</p>
+        <input class="search" v-model="searchQuery" placeholder="닉네임 검색" />
+      </div>
+      <div class="friend-list">
+        <div v-for="friend in filteredFriends" :key="friend.email" class="friend-card">
+          <div class="profile" />
+          <div>
+            <p class="nickname">{{ friend.nickname }}</p>
+            <p class="email">{{ friend.email }}</p>
+            <p class="level">Lv {{ getLevel(friend.level) }}</p>
+          </div>
+          <div class="actions">
+            <button class="block">차단하기</button>
+            <button class="delete">친구 삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 친구 요청 탭 -->
     <div v-if="currentTab === 'request'">
       <input class="search" v-model="searchEmail" placeholder="이메일 검색" @input="debouncedSearch" />
@@ -17,7 +39,7 @@
         <div>
           <p class="nickname">{{ searchResult.nickname }}</p>
           <p class="email">{{ searchResult.email }}</p>
-          <p class="level">레벨: {{ searchResult.level }}</p>
+          <p class="level">Lv {{ getLevel(searchResult.level) }}</p>
         </div>
         <div class="actions">
           <button class="request">친구 요청</button>
@@ -33,7 +55,7 @@
             <div>
               <p class="nickname">{{ req.nickname }}</p>
               <p class="email">{{ req.email }}</p>
-              <p class="level">레벨: {{ req.level }}</p>
+              <p class="level">Lv {{ getLevel(req.level) }}</p>
             </div>
             <div class="actions">
               <button class="delete">요청 취소</button>
@@ -50,35 +72,12 @@
             <div>
               <p class="nickname">{{ req.nickname }}</p>
               <p class="email">{{ req.email }}</p>
-              <p class="level">레벨: {{ req.level }}</p>
+              <p class="level">Lv {{ getLevel(req.level) }}</p>
             </div>
             <div class="actions">
               <button class="request">수락</button>
               <button class="delete">거절</button>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 나머지 탭들은 그대로 유지 -->
-    <!-- 친구 목록 탭 -->
-    <div v-if="currentTab === 'list'">
-      <div class="search-bar">
-        <p class="count">현재 친구 수 : {{ friends.length }}명</p>
-        <input class="search" v-model="searchQuery" placeholder="닉네임 검색" />
-      </div>
-      <div class="friend-list">
-        <div v-for="friend in filteredFriends" :key="friend.email" class="friend-card">
-          <div class="profile" />
-          <div>
-            <p class="nickname">{{ friend.nickname }}</p>
-            <p class="email">{{ friend.email }}</p>
-            <p class="level">레벨: {{ friend.level }}</p>
-          </div>
-          <div class="actions">
-            <button class="block">차단하기</button>
-            <button class="delete">친구 삭제</button>
           </div>
         </div>
       </div>
@@ -93,7 +92,7 @@
           <div>
             <p class="nickname">{{ blocked.nickname }}</p>
             <p class="email">{{ blocked.email }}</p>
-            <p class="level">레벨: {{ blocked.level }}</p>
+            <p class="level">Lv {{ getLevel(blocked.level) }}</p>
           </div>
           <div class="actions">
             <button class="delete">차단 해제</button>
@@ -105,29 +104,38 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 import debounce from 'lodash/debounce'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const currentTab = ref('list')
 const searchQuery = ref('')
 const searchEmail = ref('')
 const searchResult = ref(null)
 
-const friends = ref([
-  { nickname: '나친구', email: 'friend1@example.com', level: 3 },
-  { nickname: '나친구', email: 'friend2@example.com', level: 5 }
-])
-const blockedFriends = ref([
-  { nickname: '차단친구', email: 'blocked@example.com', level: 1 }
-])
+const friends = ref([])
+
 const requestingList = ref([
-  { nickname: '보낸요청1', email: 'sent1@example.com', level: 2 },
-  { nickname: '보낸요청2', email: 'sent2@example.com', level: 4 }
+  { nickname: '보낸요청1', email: 'sent1@example.com', level: 210 },
+  { nickname: '보낸요청2', email: 'sent2@example.com', level: 140 }
 ])
+
 const receivedRequestList = ref([
-  { nickname: '받은요청1', email: 'recv1@example.com', level: 1 },
-  { nickname: '받은요청2', email: 'recv2@example.com', level: 3 }
+  { nickname: '받은요청1', email: 'recv1@example.com', level: 320 },
+  { nickname: '받은요청2', email: 'recv2@example.com', level: 80 }
 ])
+
+const blockedFriends = ref([
+  { nickname: '차단친구', email: 'blocked@example.com', level: 150 }
+])
+
+const getLevel = (exp) => {
+  const value = typeof exp === 'number' ? exp : Number(exp)
+  return isNaN(value) ? 0 : Math.floor(value / 100)
+}
 
 const setTab = (tab) => {
   currentTab.value = tab
@@ -153,13 +161,27 @@ const debouncedSearch = debounce(async () => {
     searchResult.value = {
       nickname: '닉네임',
       email: 'user@example.com',
-      level: 3
+      level: 160
     }
   } else {
     searchResult.value = null
   }
 }, 500)
+
+onMounted(async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/friends', {
+        headers: {
+            Authorization: `Bearer ${authStore.accessToken}`
+        }
+    })
+    friends.value = res.data
+  } catch (err) {
+    console.error('친구 목록을 불러오지 못했습니다:', err)
+  }
+})
 </script>
+
 
 
 
