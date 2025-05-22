@@ -10,7 +10,7 @@ export default [
         component: () => import("@/views/quest/AddQuestPage.vue"),
     },
     {
-        path: "/modify-quest",
+        path: "/modify-quest/:questId",
         name: "modify-quest",
         component: () => import("@/views/quest/ModifyQuestPage.vue"),
     },
