@@ -4,12 +4,14 @@ import authRoutes from "./authRoutes";
 import mainRoutes from "./mainRoutes";
 import stampRoutes from "./stampRoutes";
 import questRoutes from "./questRoutes";
+import friendRoutes from "./friendRoutes";
 
 const routes = [
     ...authRoutes,
     ...mainRoutes,
     ...stampRoutes,
     ...questRoutes,
+    ...friendRoutes,
     // 공통 페이지 추가
     // {
     //     path: "/:pathMatch(.*)*",
