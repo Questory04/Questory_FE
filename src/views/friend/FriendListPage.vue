@@ -9,28 +9,6 @@
       <button :class="{ active: currentTab === 'blocked' }" @click="setTab('blocked')">차단 목록</button>
     </div>
 
-    <!-- 친구 목록 탭 -->
-    <div v-if="currentTab === 'list'">
-      <div class="search-bar">
-        <p class="count">현재 친구 수 : {{ friends.length }}명</p>
-        <input class="search" v-model="searchQuery" placeholder="닉네임 검색" />
-      </div>
-      <div class="friend-list">
-        <div v-for="friend in filteredFriends" :key="friend.email" class="friend-card">
-          <div class="profile" />
-          <div>
-            <p class="nickname">{{ friend.nickname }}</p>
-            <p class="email">{{ friend.email }}</p>
-            <p class="level">레벨: {{ friend.level }}</p>
-          </div>
-          <div class="actions">
-            <button class="block">차단하기</button>
-            <button class="delete">친구 삭제</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- 친구 요청 탭 -->
     <div v-if="currentTab === 'request'">
       <input class="search" v-model="searchEmail" placeholder="이메일 검색" @input="debouncedSearch" />
@@ -48,7 +26,7 @@
       <p v-else-if="searchEmail">검색 결과가 없습니다.</p>
 
       <div class="requesting-list" v-if="requestingList.length">
-        <h3 class="subtitle">요청 목록</h3>
+        <h3 class="subtitle">내가 요청한 친구 목록</h3>
         <div class="friend-list">
           <div v-for="req in requestingList" :key="req.email" class="friend-card">
             <div class="profile" />
@@ -60,6 +38,47 @@
             <div class="actions">
               <button class="delete">요청 취소</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="requesting-list" v-if="receivedRequestList.length">
+        <h3 class="subtitle">받은 친구 요청 목록</h3>
+        <div class="friend-list">
+          <div v-for="req in receivedRequestList" :key="req.email" class="friend-card">
+            <div class="profile" />
+            <div>
+              <p class="nickname">{{ req.nickname }}</p>
+              <p class="email">{{ req.email }}</p>
+              <p class="level">레벨: {{ req.level }}</p>
+            </div>
+            <div class="actions">
+              <button class="request">수락</button>
+              <button class="delete">거절</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 나머지 탭들은 그대로 유지 -->
+    <!-- 친구 목록 탭 -->
+    <div v-if="currentTab === 'list'">
+      <div class="search-bar">
+        <p class="count">현재 친구 수 : {{ friends.length }}명</p>
+        <input class="search" v-model="searchQuery" placeholder="닉네임 검색" />
+      </div>
+      <div class="friend-list">
+        <div v-for="friend in filteredFriends" :key="friend.email" class="friend-card">
+          <div class="profile" />
+          <div>
+            <p class="nickname">{{ friend.nickname }}</p>
+            <p class="email">{{ friend.email }}</p>
+            <p class="level">레벨: {{ friend.level }}</p>
+          </div>
+          <div class="actions">
+            <button class="block">차단하기</button>
+            <button class="delete">친구 삭제</button>
           </div>
         </div>
       </div>
@@ -95,22 +114,19 @@ const searchEmail = ref('')
 const searchResult = ref(null)
 
 const friends = ref([
-  { nickname: '나친구', email: 'email1@example.com', level: 3 },
-  { nickname: '나친구', email: 'email2@example.com', level: 2 },
-  { nickname: '나친구', email: 'email3@example.com', level: 5 },
-  { nickname: '나친구', email: 'email4@example.com', level: 4 },
-  { nickname: '나친구', email: 'email5@example.com', level: 1 },
-  { nickname: '나친구', email: 'email6@example.com', level: 6 }
+  { nickname: '나친구', email: 'friend1@example.com', level: 3 },
+  { nickname: '나친구', email: 'friend2@example.com', level: 5 }
 ])
-
 const blockedFriends = ref([
-  { nickname: '차단친구1', email: 'blocked1@example.com', level: 1 },
-  { nickname: '차단친구2', email: 'blocked2@example.com', level: 2 }
+  { nickname: '차단친구', email: 'blocked@example.com', level: 1 }
 ])
-
 const requestingList = ref([
-  { nickname: '요청중친구1', email: 'pending1@example.com', level: 1 },
-  { nickname: '요청중친구2', email: 'pending2@example.com', level: 2 }
+  { nickname: '보낸요청1', email: 'sent1@example.com', level: 2 },
+  { nickname: '보낸요청2', email: 'sent2@example.com', level: 4 }
+])
+const receivedRequestList = ref([
+  { nickname: '받은요청1', email: 'recv1@example.com', level: 1 },
+  { nickname: '받은요청2', email: 'recv2@example.com', level: 3 }
 ])
 
 const setTab = (tab) => {
@@ -144,6 +160,8 @@ const debouncedSearch = debounce(async () => {
   }
 }, 500)
 </script>
+
+
 
 <style scoped>
 .friend-manager {
