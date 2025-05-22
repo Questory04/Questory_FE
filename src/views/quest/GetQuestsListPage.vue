@@ -1,22 +1,5 @@
 <template>
     <div class="quest-browsing-page">
-        <!-- 헤더 영역 -->
-        <!-- <header class="header">
-            <div class="logo">Questory</div>
-            <nav class="navigation">
-                <ul>
-                    <li class="nav-item active">퀘스트</li>
-                    <li class="nav-item">여행</li>
-                    <li class="nav-item">커뮤니티</li>
-                    <li class="nav-item">친구</li>
-                    <li class="nav-item">스탬프</li>
-                </ul>
-            </nav>
-            <div class="profile">
-                <div class="profile-circle"></div>
-            </div>
-        </header> -->
-
         <!-- 메인 컨텐츠 영역 -->
         <main class="main-content">
             <h2 class="title">퀘스트 조회</h2>
@@ -58,24 +41,76 @@
 
             <!-- 퀘스트 카드 그리드 -->
             <div class="quest-grid">
-                <div v-for="quest in filteredQuests" :key="quest.id" class="quest-card">
+                <div v-for="quest in quests" :key="quest.id" class="quest-card">
                     <div class="quest-image">
-                        <div class="circle">
-                            <span>{{ quest.attractionImage }}</span>
+                        <div class="circle large">
+                            <template v-if="quest.attractionImage && quest.attractionImage !== 'null'">
+                                <img :src="quest.attractionImage" alt="관광지 이미지" class="circle large" />
+                            </template>
+                            <template v-else>
+                                <span>이미지 없음</span>
+                            </template>
                         </div>
                     </div>
+
                     <div class="quest-info">
                         <h3 class="quest-title">{{ quest.title }}</h3>
                         <div class="difficulty-badge" :class="quest.difficulty.toLowerCase()">
                             {{ quest.difficulty }}
                         </div>
                         <div class="quest-tags">
-                            <span class="tag">{{ quest.contentTypeTitle }}</span>
-                            <span class="tag">{{ quest.sidoName }}</span>
+                            <span class="tag"># {{ quest.attractionTitle }}</span>
+                            <span class="tag"># {{ quest.contentTypeTitle }}</span>
                         </div>
                         <button class="detail-btn" @click="openDetailModal(quest)">상세보기</button>
                     </div>
                 </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div v-if="pagination.totalPages > 1" class="pagination">
+                <!-- 첫 페이지 이동 버튼 -->
+                <button class="pagination-btn" :disabled="pagination.currentPage === 1" @click="changePage(1)">
+                    &laquo;
+                </button>
+
+                <!-- 이전 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === 1"
+                    @click="changePage(pagination.currentPage - 1)"
+                >
+                    &lsaquo;
+                </button>
+
+                <!-- 페이지 번호 버튼 -->
+                <button
+                    v-for="page in visiblePageNumbers"
+                    :key="page"
+                    class="pagination-btn"
+                    :class="{ active: pagination.currentPage === page }"
+                    @click="changePage(page)"
+                >
+                    {{ page }}
+                </button>
+
+                <!-- 다음 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    @click="changePage(pagination.currentPage + 1)"
+                >
+                    &rsaquo;
+                </button>
+
+                <!-- 마지막 페이지 이동 버튼 -->
+                <button
+                    class="pagination-btn"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    @click="changePage(pagination.totalPages)"
+                >
+                    &raquo;
+                </button>
             </div>
         </main>
 
@@ -86,7 +121,12 @@
                 <h3 class="modal-title">{{ selectedQuest.title }}</h3>
                 <div class="quest-detail-image">
                     <div class="circle large">
-                        <span>{{ selectedQuest.attractionImage }}</span>
+                        <template v-if="selectedQuest.attractionImage && selectedQuest.attractionImage !== 'null'">
+                            <img :src="selectedQuest.attractionImage" alt="관광지 이미지" class="circle large" />
+                        </template>
+                        <template v-else>
+                            <span>이미지 없음</span>
+                        </template>
                     </div>
                 </div>
                 <div class="quest-detail-info">
@@ -113,104 +153,141 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+
+// API 기본 URL
+const API_URL = "http://localhost:8080";
+
+// 인증 스토어 가져오기
+const authStore = useAuthStore();
+
 export default {
     name: "QuestBrowsing",
     data() {
         return {
             selectedDifficulty: "all",
             selectedQuest: null,
-            quests: [
-                {
-                    id: 1,
-                    title: "퀘스트 이름",
-                    attractionTitle: "관광지 이름",
-                    attractionImage: "image.png",
-                    contentTypeTitle: "관광지 타입",
-                    sidoName: "시도",
-                    difficulty: "EASY",
-                    description: "이 퀘스트는 관광지 탐험을 통해 완료할 수 있는 퀘스트입니다.",
-                },
-                {
-                    id: 2,
-                    title: "남산타워 가자",
-                    attractionTitle: "남산타워",
-                    attractionImage: "관광지 이미지",
-                    contentTypeTitle: "관광지 타입",
-                    sidoName: "시도",
-                    difficulty: "HARD",
-                    description: "서울 남산타워를 방문하고 퀘스트를 완료해보세요.",
-                },
-                {
-                    id: 3,
-                    title: "퀘스트 이름",
-                    attractionTitle: "관광지 이름",
-                    attractionImage: "image.png",
-                    contentTypeTitle: "관광지 타입",
-                    sidoName: "시도",
-                    difficulty: "MEDIUM",
-                    description: "이 퀘스트는 관광지 탐험을 통해 완료할 수 있는 퀘스트입니다.",
-                },
-                {
-                    id: 4,
-                    title: "퀘스트 이름",
-                    attractionTitle: "관광지 이름",
-                    attractionImage: "image.png",
-                    contentTypeTitle: "관광지 타입",
-                    sidoName: "시도",
-                    difficulty: "EASY",
-                    description: "이 퀘스트는 관광지 탐험을 통해 완료할 수 있는 퀘스트입니다.",
-                },
-                {
-                    id: 5,
-                    title: "퀘스트 이름",
-                    attractionTitle: "관광지 이름",
-                    attractionImage: "image.png",
-                    contentTypeTitle: "관광지 타입",
-                    sidoName: "시도",
-                    difficulty: "EASY",
-                    description: "이 퀘스트는 관광지 탐험을 통해 완료할 수 있는 퀘스트입니다.",
-                },
-                {
-                    id: 6,
-                    title: "퀘스트 이름",
-                    attractionTitle: "관광지 이름",
-                    attractionImage: "image.png",
-                    contentTypeTitle: "관광지 타입",
-                    sidoName: "시도",
-                    difficulty: "EASY",
-                    description: "이 퀘스트는 관광지 탐험을 통해 완료할 수 있는 퀘스트입니다.",
-                },
-            ],
+            quests: [],
+            pagination: {
+                currentPage: 1,
+                totalItems: 0,
+                totalPages: 0,
+                pageSize: 6,
+            },
+            loading: false,
+            error: null,
         };
     },
-    computed: {
-        filteredQuests() {
-            if (this.selectedDifficulty === "all") {
-                return this.quests;
-            }
-            return this.quests.filter((quest) => quest.difficulty === this.selectedDifficulty);
-        },
+    created() {
+        // 컴포넌트가 생성될 때 퀘스트 데이터 로드
+        this.fetchQuests();
     },
+    computed: {},
     methods: {
+        // 백엔드에서 퀘스트 데이터 가져오기
+        fetchQuests() {
+            this.loading = true;
+            this.error = null;
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                this.error = "로그인이 필요합니다.";
+                this.loading = false;
+                return;
+            }
+
+            axios
+                .get(`${API_URL}/quests`, {
+                    params: {
+                        page: this.pagination.currentPage,
+                        size: this.pagination.pageSize,
+                        difficulty: this.selectedDifficulty === "all" ? null : this.selectedDifficulty,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    // 백엔드 응답 구조에 맞게 데이터 추출
+                    const questsData = response.data.quests || [];
+                    const paginationData = response.data.pagination || {};
+
+                    console.log("questsData");
+                    console.log(questsData);
+
+                    // 퀘스트 데이터 변환 (백엔드 DTO 형식에 맞게 조정)
+                    this.quests = questsData.map((quest, index) => ({
+                        id: quest.id || `quest-${paginationData.currentPage}-${index}`,
+                        title: quest.questTitle,
+                        attractionImage: quest.attractionImage,
+                        attractionTitle: quest.attractionTitle,
+                        contentTypeTitle: quest.contentTypeName,
+                        sidoName: quest.attractionAddress,
+                        difficulty: quest.questDifficulty,
+                        description: quest.questDescription,
+                    }));
+
+                    // 페이지네이션 정보 업데이트
+                    this.pagination = {
+                        currentPage: paginationData.currentPage || 1,
+                        totalItems: paginationData.totalItems || 0,
+                        totalPages: paginationData.totalPages || 1,
+                        pageSize: paginationData.pageSize || 6,
+                    };
+
+                    // 필터링 적용
+                    // this.applyFilter();
+                })
+                .catch((error) => {
+                    console.error("퀘스트 데이터를 불러오는 중 오류가 발생했습니다:", error);
+
+                    if (error.response) {
+                        // 서버 응답이 있는 경우
+                        if (error.response.status === 401) {
+                            this.error = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                            // 로그인 페이지로 리다이렉트 (필요시)
+                            // this.$router.push('/login');
+                        } else {
+                            this.error = `오류가 발생했습니다: ${error.response.data.message || "알 수 없는 오류"}`;
+                        }
+                    } else {
+                        this.error = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                    }
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
+        // 페이지 변경 처리
+        changePage(page) {
+            this.pagination.currentPage = page;
+            this.fetchQuests();
+        },
+
         filterQuests(difficulty) {
             this.selectedDifficulty = difficulty;
+            this.pagination.currentPage = 1;
+            this.fetchQuests();
         },
+
         openDetailModal(quest) {
             this.selectedQuest = quest;
             document.body.style.overflow = "hidden"; // 모달 열릴 때 배경 스크롤 방지
         },
+
         closeDetailModal() {
             this.selectedQuest = null;
             document.body.style.overflow = ""; // 모달 닫힐 때 배경 스크롤 복원
         },
+
         startQuest() {
-            // 퀘스트 시작 로직 구현
             console.log("퀘스트 시작:", this.selectedQuest);
             // 실제 구현 시에는 퀘스트 시작 페이지로 이동하거나
             // 필요한 API 호출 등을 수행할 수 있습니다.
             // this.$router.push({ name: 'quest-play', params: { id: this.selectedQuest.id } });
 
-            // 모달 닫기
             this.closeDetailModal();
         },
     },
@@ -229,47 +306,6 @@ body {
     font-family: "Noto Sans KR", sans-serif;
     color: #333;
     background-color: #fff;
-}
-
-/* 헤더 스타일 */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.logo {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #5a9bd8;
-}
-
-.navigation ul {
-    display: flex;
-    list-style: none;
-}
-
-.nav-item {
-    margin: 0 1rem;
-    padding: 0.5rem 0;
-    cursor: pointer;
-    color: #666;
-    font-weight: 500;
-}
-
-.nav-item.active {
-    color: #333;
-    border-bottom: 2px solid #5a9bd8;
-}
-
-.profile-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
 }
 
 /* 메인 컨텐츠 스타일 */
@@ -435,6 +471,46 @@ body {
 
 .detail-btn:hover {
     background-color: #4a90e2;
+}
+
+/* 페이지네이션 스타일 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.pagination-btn.active {
+    background-color: #5a9bd8;
+    color: white;
+    border-color: #5a9bd8;
+}
+
+.pagination-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: #f8f9fa;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+    background-color: #f8f9fa;
+    border-color: #5a9bd8;
 }
 
 /* 모달 스타일 */
