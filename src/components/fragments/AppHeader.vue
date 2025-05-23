@@ -2,21 +2,32 @@
     <header class="app-header">
         <div class="container">
             <a href="/main" class="logo">Questory</a>
-            <nav class="nav-menu">
-                <template v-if="isLoggedIn">
-                    <a href="/quests" class="nav-item">퀘스트</a>
+            <template v-if="isLoggedIn">
+                <nav class="nav-menu">
+                    <div class="nav-dropdown">
+                        <a href="" class="nav-item">퀘스트</a>
+                        <div class="dropdown-content">
+                            <a href="/quests" class="dropdown-item">전체 퀘스트</a>
+                            <a href="/#" class="dropdown-item">진행중인 퀘스트</a>
+                            <a href="/#" class="dropdown-item">내가 만든 퀘스트</a>
+                        </div>
+                    </div>
                     <a href="/#" class="nav-item">여행</a>
                     <a href="/#" class="nav-item">커뮤니티</a>
                     <a href="/#" class="nav-item">친구</a>
                     <a href="/stamps" class="nav-item">스탬프</a>
+                </nav>
+                <nav>
                     <a href="/myPage" class="nav-item"> 마이페이지</a>
                     <a href="#" class="nav-item" @click.prevent="logout">로그아웃</a>
-                </template>
-                <template v-else>
+                </nav>
+            </template>
+            <template v-else>
+                <nav class="nav-menu">
                     <a href="/login" class="nav-item">로그인</a>
                     <a href="/signup" class="nav-item">회원가입</a>
-                </template>
-            </nav>
+                </nav>
+            </template>
         </div>
     </header>
 </template>
@@ -39,7 +50,7 @@ const logout = () => {
     color: #666;
     text-decoration: none;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     transition: all 0.3s;
 }
 
@@ -50,14 +61,14 @@ const logout = () => {
 
 .app-header {
     background-color: white;
-    border-bottom: 1px solid #ddd;
-    padding: 16px 0;
+    border-bottom: 0.07rem solid #ddd;
+    padding: 1rem 0;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 1.5rem;
 
     display: flex;
     justify-content: space-between;
@@ -65,7 +76,7 @@ const logout = () => {
 }
 
 .logo {
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: bold;
     color: #87a6c9;
 }
@@ -73,13 +84,82 @@ const logout = () => {
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 1rem;
 }
 
 .profile-icon {
-    width: 28px;
-    height: 28px;
+    width: 1.75rem;
+    height: 1.75rem;
     border-radius: 50%;
     background-color: #dcdcdc;
+}
+
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    min-width: 12rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0;
+    z-index: 1001;
+    border: 0.0625rem solid #e9ecef;
+    margin-top: 0.25rem;
+
+    left: 50%; /* 부모 요소의 가운데 기준 */
+    transform: translateX(-50%); /* 자신의 너비의 50%만큼 왼쪽으로 이동 */
+}
+
+.nav-dropdown:hover .dropdown-content {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        transform: translateX(-50%) translateY(-0.5rem);
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.dropdown-item {
+    color: #333;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s;
+    border-radius: 0;
+    font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #4a90e2;
+    padding-left: 1.25rem;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+
+    .dropdown-content {
+        position: fixed;
+        top: 4rem;
+        left: 1rem;
+        right: 1rem;
+        min-width: auto;
+        transform: none;
+    }
 }
 </style>
