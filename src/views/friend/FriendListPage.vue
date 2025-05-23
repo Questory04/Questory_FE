@@ -37,19 +37,21 @@
     <!-- 친구 요청 -->
     <div v-if="currentTab === 'request'">
       <input class="search" v-model="searchEmail" placeholder="이메일 검색" @input="debouncedSearch" />
-      <div v-if="searchResult" class="friend-card">
+      <div v-if="searchResults.length" class="friend-list">
+      <div v-for="user in searchResults" :key="user.email" class="friend-card">
         <div class="top-content">
           <div class="profile" />
           <div class="user-info">
-            <p class="nickname">{{ searchResult.nickname }}</p>
-            <p class="email">{{ searchResult.email }}</p>
-            <p class="level">Lv {{ getLevel(searchResult.level) }}</p>
+            <p class="nickname">{{ user.nickname }}</p>
+            <p class="email">{{ user.email }}</p>
+            <p class="level">Lv {{ getLevel(user.exp || 0) }}</p>
           </div>
         </div>
         <div class="actions-bottom">
           <button class="request">친구 요청</button>
         </div>
       </div>
+    </div>
       <p v-else-if="searchEmail">검색 결과가 없습니다.</p>
 
       <div v-if="requestingList.length">
@@ -124,7 +126,7 @@ const authStore = useAuthStore()
 const currentTab = ref('list')
 const searchQuery = ref('')
 const searchEmail = ref('')
-const searchResult = ref(null)
+const searchResults = ref([])
 
 const friends = ref([])
 const requestingList = ref([
@@ -143,13 +145,13 @@ const getLevel = (exp) => {
 
 const setTab = (tab) => {
   currentTab.value = tab
-
   if (tab === 'request') {
     searchEmail.value = ''
-    searchResult.value = null
+    searchResults.value = []
     fetchFollowRequests()
   }
 }
+
 const filteredFriends = computed(() => {
   if (!searchQuery.value) return friends.value
   return friends.value.filter(f =>
@@ -159,36 +161,43 @@ const filteredFriends = computed(() => {
 
 const debouncedSearch = debounce(async () => {
   if (!searchEmail.value) {
-    searchResult.value = null
+    searchResults.value = []
     return
   }
-  if (searchEmail.value === 'user@example.com') {
-    searchResult.value = {
-      nickname: '닉네임',
-      email: 'user@example.com',
-      level: 160
-    }
-  } else {
-    searchResult.value = null
+
+  try {
+    const token = authStore.accessToken || localStorage.getItem('accessToken')
+    const res = await axios.get('http://localhost:8080/me/search', {
+      params: {
+        email: searchEmail.value,
+        page: 0,
+        size: 10
+      },
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = res.data
+    searchResults.value = data.content || []
+  } catch (err) {
+    console.error('❌ 유저 검색 실패:', err)
+    searchResults.value = []
   }
 }, 500)
 
 onMounted(async () => {
   try {
     const token = authStore.accessToken || localStorage.getItem('accessToken')
-    console.log('🪪 사용 중인 토큰:', token)
-
     const res = await axios.get('http://localhost:8080/friends', {
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
 
-    console.log('📦 응답 데이터:', res.data)
     friends.value = res.data
   } catch (err) {
     console.error('❌ 친구 목록을 불러오지 못했습니다:', err)
-    console.error('📛 응답 에러:', err?.response?.data)
   }
 })
 
@@ -200,7 +209,6 @@ const fetchFollowRequests = async () => {
         Authorization: `Bearer ${token}`
       }
     })
-    console.log('✅ 친구 요청 목록:', res.data)
     receivedRequestList.value = res.data
   } catch (err) {
     console.error('❌ 친구 요청 목록 불러오기 실패:', err)
@@ -266,6 +274,7 @@ const fetchFollowRequests = async () => {
   padding: 0.5rem;
   border-radius: 10px;
   border: 1px solid #ccc;
+  margin: 1rem;
 }
 
 .count {
