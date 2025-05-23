@@ -132,10 +132,7 @@ const requestingList = ref([
   { nickname: '보낸요청1', email: 'sent1@example.com', level: 210 },
   { nickname: '보낸요청2', email: 'sent2@example.com', level: 140 }
 ])
-const receivedRequestList = ref([
-  { nickname: '받은요청1', email: 'recv1@example.com', level: 320 },
-  { nickname: '받은요청2', email: 'recv2@example.com', level: 80 }
-])
+const receivedRequestList = ref([])
 const blockedFriends = ref([
   { nickname: '차단친구', email: 'blocked@example.com', level: 150 }
 ])
@@ -147,12 +144,13 @@ const getLevel = (exp) => {
 
 const setTab = (tab) => {
   currentTab.value = tab
+
   if (tab === 'request') {
     searchEmail.value = ''
     searchResult.value = null
+    fetchFollowRequests()
   }
 }
-
 const filteredFriends = computed(() => {
   if (!searchQuery.value) return friends.value
   return friends.value.filter(f =>
@@ -194,6 +192,21 @@ onMounted(async () => {
     console.error('📛 응답 에러:', err?.response?.data)
   }
 })
+
+const fetchFollowRequests = async () => {
+  try {
+    const token = authStore.accessToken || localStorage.getItem('accessToken')
+    const res = await axios.get('http://localhost:8080/friends/request', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    console.log('✅ 친구 요청 목록:', res.data)
+    receivedRequestList.value = res.data
+  } catch (err) {
+    console.error('❌ 친구 요청 목록 불러오기 실패:', err)
+  }
+}
 </script>
 
 <style scoped>
