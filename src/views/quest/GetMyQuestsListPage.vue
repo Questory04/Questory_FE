@@ -214,9 +214,6 @@ export default {
                     const questsData = response.data.quests || [];
                     const paginationData = response.data.pagination || {};
 
-                    console.log("questsData");
-                    console.log(questsData);
-
                     // 퀘스트 데이터 변환 (백엔드 DTO 형식에 맞게 조정)
                     this.quests = questsData.map((quest) => ({
                         questId: quest.questId,
@@ -283,13 +280,65 @@ export default {
         },
 
         updateQuest() {
-            console.log("퀘스트 업데이트:", this.selectedQuest);
-            console.log("id : ", this.selectedQuest.questId);
             this.$router.push(`/modify-quest/${this.selectedQuest.questId}`);
             this.closeDetailModal();
         },
         deleteQuest() {
-            console.log("퀘스트 삭제:", this.selectedQuest);
+            if (!confirm(`"${this.selectedQuest.title}" 퀘스트를 정말 삭제하시겠습니까?`)) {
+                return;
+            }
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            axios
+                .patch(
+                    `${API_URL}/quests/delete/${this.selectedQuest.questId}`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                )
+                .then((response) => {
+                    // 성공 메시지 표시
+                    alert(response.data.message || "퀘스트가 성공적으로 삭제되었습니다.");
+
+                    // 모달 닫기
+                    this.closeDetailModal();
+
+                    // 퀘스트 목록 새로고침
+                    this.fetchQuests();
+                })
+                .catch((error) => {
+                    console.error("퀘스트 삭제 중 오류가 발생했습니다:", error);
+
+                    let errorMessage = "퀘스트 삭제 중 오류가 발생했습니다.";
+
+                    if (error.response) {
+                        if (error.response.status === 401) {
+                            errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                        } else if (error.response.status === 403) {
+                            errorMessage = "삭제 권한이 없습니다.";
+                        } else if (error.response.status === 404) {
+                            errorMessage = "해당 퀘스트를 찾을 수 없습니다.";
+                        } else if (error.response.data && error.response.data.message) {
+                            errorMessage = error.response.data.message;
+                        }
+                    } else if (error.request) {
+                        errorMessage = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                    }
+
+                    alert(errorMessage);
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
 
             this.closeDetailModal();
         },
