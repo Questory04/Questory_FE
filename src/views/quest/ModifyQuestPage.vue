@@ -255,7 +255,7 @@ export default {
                 alert(successMessage);
 
                 // 퀘스트 목록으로 이동
-                this.$router.push("/quests");
+                this.$router.push("/quests/me/created");
             } catch (error) {
                 console.error("퀘스트 수정 중 오류가 발생했습니다:", error);
 

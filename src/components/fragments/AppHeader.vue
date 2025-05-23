@@ -9,7 +9,7 @@
                         <div class="dropdown-content">
                             <a href="/quests" class="dropdown-item">전체 퀘스트</a>
                             <a href="/#" class="dropdown-item">진행중인 퀘스트</a>
-                            <a href="/#" class="dropdown-item">내가 만든 퀘스트</a>
+                            <a href="/quests/me/created" class="dropdown-item">내가 만든 퀘스트</a>
                         </div>
                     </div>
                     <a href="/#" class="nav-item">여행</a>
