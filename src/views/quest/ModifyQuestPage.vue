@@ -168,6 +168,7 @@ export default {
                 // 백엔드 응답 데이터를 폼 데이터로 변환
                 const questData = response.data.quest;
                 this.formData = {
+                    attractionId: questData.attractionId,
                     location: questData.attractionName,
                     address: questData.attractionAddr,
                     title: questData.questTitle,
@@ -208,7 +209,7 @@ export default {
                 return;
             }
 
-            if (!this.formData.questDescription.trim()) {
+            if (!this.formData.description.trim()) {
                 this.error = "퀘스트 설명을 입력해주세요.";
                 return;
             }
@@ -233,11 +234,13 @@ export default {
             const updateData = {
                 attraction_id: this.formData.attractionId,
                 title: this.formData.title,
-                quest_description: this.formData.questDescription,
+                quest_description: this.formData.description,
                 difficulty: this.formData.difficulty,
-                is_private: this.formData.isPrivate,
+                is_private: this.formData.visibility,
                 stamp_description: this.formData.stampDescription,
             };
+
+            console.log("updateData : ", updateData);
 
             try {
                 const response = await axios.patch(`${API_URL}/quests/${this.questId}`, updateData, {
@@ -251,9 +254,8 @@ export default {
                 const successMessage = response.data.message || "퀘스트가 성공적으로 수정되었습니다!";
                 alert(successMessage);
 
-                // 퀘스트 상세 페이지 또는 목록으로 이동
-                this.$router.push(`/quests/${this.questId}`);
-                // 또는 목록으로: this.$router.push('/quests');
+                // 퀘스트 목록으로 이동
+                this.$router.push("/quests");
             } catch (error) {
                 console.error("퀘스트 수정 중 오류가 발생했습니다:", error);
 
@@ -327,105 +329,6 @@ export default {
         },
     },
 };
-// export default {
-//     name: "QuestEdit",
-//     data() {
-//         return {
-//             pageTitle: "퀘스트 수정하기",
-//             menuItems: ["퀘스트", "여행", "커뮤니티", "친구", "스탬프"],
-//             difficultyOptions: ["EASY", "MEDIUM", "HARD"],
-//             visibilityOptions: [
-//                 { value: "public", label: "공개" },
-//                 { value: "private", label: "비공개" },
-//             ],
-//             formData: {
-//                 id: 2,
-//                 location: "서울 남산타워",
-//                 address: "서울특별시 용산구 남산공원길 105",
-//                 title: "남산타워 가자",
-//                 difficulty: "MEDIUM",
-//                 description: "서울의 랜드마크 ! 남산타워에서 가보세요 ~",
-//                 stampDescription:
-//                     "서울 남산타워를 방문하고 퀘스트를 완료하여 획득한 스탬프입니다. 남산타워에서 서울 전경을 구경했습니다.",
-//                 visibility: "public",
-//             },
-//             originalData: null,
-//             showConfirmModal: false,
-//         };
-//     },
-//     created() {
-//         // 실제 구현 시: API에서 퀘스트 데이터 불러오기
-//         // const questId = this.$route.params.id;
-//         // axios.get(`/api/quests/${questId}`)
-//         //     .then(response => {
-//         //         this.formData = response.data;
-//         //         this.originalData = JSON.parse(JSON.stringify(response.data));
-//         //     })
-//         //     .catch(error => {
-//         //         console.error('퀘스트 불러오기 오류:', error);
-//         //     });
-
-//         // 현재는 더미 데이터 저장
-//         this.originalData = JSON.parse(JSON.stringify(this.formData));
-//     },
-//     methods: {
-//         submitForm() {
-//             // 입력 검증
-//             if (!this.formData.title.trim()) {
-//                 alert("퀘스트 제목을 입력해주세요");
-//                 return;
-//             }
-
-//             if (!this.formData.description.trim()) {
-//                 alert("퀘스트 설명을 입력해주세요");
-//                 return;
-//             }
-
-//             if (!this.formData.stampDescription.trim()) {
-//                 alert("퀘스트 설명을 입력해주세요");
-//                 return;
-//             }
-
-//             // 실제 구현 시: API 호출
-//             // axios.put(`/api/quests/${this.formData.id}`, this.formData)
-//             //     .then(response => {
-//             //         alert('퀘스트가 성공적으로 수정되었습니다!');
-//             //         this.$router.push('/quests');
-//             //     })
-//             //     .catch(error => {
-//             //         console.error('수정 오류:', error);
-//             //     });
-
-//             // 현재는 성공 메시지만 표시
-//             console.log("수정된 퀘스트 데이터:", this.formData);
-//             alert("퀘스트가 성공적으로 수정되었습니다!");
-//             // 실제 구현 시: 목록 페이지로 이동
-//             // this.$router.push('/quests');
-//         },
-//         cancelEdit() {
-//             // 변경사항이 있는지 확인
-//             if (JSON.stringify(this.formData) !== JSON.stringify(this.originalData)) {
-//                 this.showConfirmModal = true;
-//             } else {
-//                 this.goBack();
-//             }
-//         },
-//         closeConfirmModal() {
-//             this.showConfirmModal = false;
-//         },
-//         confirmCancel() {
-//             this.closeConfirmModal();
-//             this.goBack();
-//         },
-//         goBack() {
-//             // 실제 구현 시: 이전 페이지로 이동
-//             // this.$router.go(-1);
-
-//             // 현재는 알림만 표시
-//             alert("퀘스트 수정이 취소되었습니다.");
-//         },
-//     },
-// };
 </script>
 
 <style scoped>
