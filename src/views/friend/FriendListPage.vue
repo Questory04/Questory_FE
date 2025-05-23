@@ -213,7 +213,7 @@ onMounted(async () => {
 .subtitle {
   font-size: 0.95rem;
   color: #555;
-  margin-bottom: 1.5rem;
+  margin: 1.5rem;
 }
 
 .tabs {
