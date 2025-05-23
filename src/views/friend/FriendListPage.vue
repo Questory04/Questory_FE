@@ -227,12 +227,25 @@ const sendFriendRequest = async (targetEmail) => {
       }
     })
 
+    // ✅ 요청 목록 갱신
+    await fetchSentFriendRequests()
+
+    // ✅ 검색 목록에서 제거
+    searchResults.value = searchResults.value.filter(user => user.email !== targetEmail)
+
+    // ✅ 받은 요청 목록에서도 제거 (요청자가 나인 경우)
+    receivedRequestList.value = receivedRequestList.value.filter(
+      req => req.requesterEmail !== targetEmail
+    )
+
     alert(res.data.message || '친구 요청을 보냈어요!')
   } catch (err) {
     console.error('❌ 친구 요청 실패:', err)
     alert(err?.response?.data?.message || '친구 요청 중 오류가 발생했습니다.')
   }
 }
+
+
 
 const fetchSentFriendRequests = async () => {
   try {
