@@ -53,6 +53,25 @@
       <p v-else-if="searchEmail">검색 결과가 없습니다.</p>
 
       <div v-if="requestingList.length">
+        <div v-if="receivedRequestList.length">
+        <h3 class="subtitle">받은 친구 요청 목록</h3>
+        <div class="friend-list">
+          <div v-for="req in receivedRequestList" :key="req.email" class="friend-card">
+            <div class="top-content">
+              <div class="profile" />
+              <div class="user-info">
+                <p class="nickname">{{ req.nickname }}</p>
+                <p class="email">{{ req.requesterEmail }}</p>
+                <p class="level">Lv {{ getLevel(req.level) }}</p>
+              </div>
+            </div>
+            <div class="actions-bottom">
+              <button class="request">수락</button>
+              <button class="delete">거절</button>
+            </div>
+          </div>
+        </div>
+      </div>
         <h3 class="subtitle">내가 요청한 친구 목록</h3>
         <div class="friend-list">
           <div v-for="req in requestingList" :key="req.email" class="friend-card">
@@ -66,26 +85,6 @@
             </div>
             <div class="actions-bottom">
               <button class="delete">요청 취소</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="receivedRequestList.length">
-        <h3 class="subtitle">받은 친구 요청 목록</h3>
-        <div class="friend-list">
-          <div v-for="req in receivedRequestList" :key="req.email" class="friend-card">
-            <div class="top-content">
-              <div class="profile" />
-              <div class="user-info">
-                <p class="nickname">{{ req.nickname }}</p>
-                <p class="email">{{ req.email }}</p>
-                <p class="level">Lv {{ getLevel(req.level) }}</p>
-              </div>
-            </div>
-            <div class="actions-bottom">
-              <button class="request">수락</button>
-              <button class="delete">거절</button>
             </div>
           </div>
         </div>
