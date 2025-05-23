@@ -272,6 +272,7 @@ export default {
                 } else {
                     this.error = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
                 }
+                alert(this.error);
             } finally {
                 this.submitting = false;
             }
