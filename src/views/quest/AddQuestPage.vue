@@ -42,7 +42,7 @@
                 <textarea
                     class="form-textarea"
                     placeholder="퀘스트에 대한 설명을 입력하세요"
-                    v-model="formData.description"
+                    v-model="formData.questDescription"
                 ></textarea>
             </div>
 
@@ -59,16 +59,18 @@
                 <label class="form-label">공개 여부</label>
                 <div class="radio-group">
                     <label
-                        v-for="(option, index) in visibilityOptions"
+                        v-for="(option, index) in isPrivate"
                         :key="index"
-                        :class="['radio-option', formData.visibility === option.value ? 'active' : 'inactive']"
-                        @click="formData.visibility = option.value"
+                        :class="['radio-option', formData.isPrivate === option.value ? 'active' : 'inactive']"
+                        @click="formData.isPrivate = option.value"
                     >
-                        <input type="radio" name="visibility" :value="option.value" v-model="formData.visibility" />
+                        <input type="radio" name="isPrivate" :value="option.value" v-model="formData.isPrivate" />
                         {{ option.label }}
                     </label>
                 </div>
             </div>
+
+            <p v-if="error" class="form-error">{{ error }}</p>
 
             <div class="button-group">
                 <button type="submit" class="btn btn-primary">등록</button>
@@ -118,6 +120,15 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+
+// API 기본 URL
+const API_URL = "http://localhost:8080";
+
+// 인증 스토어 가져오기
+const authStore = useAuthStore();
+
 export default {
     name: "QuestRegistration",
     data() {
@@ -125,112 +136,198 @@ export default {
             pageTitle: "퀘스트 등록하기",
             menuItems: ["퀘스트", "여행", "커뮤니티", "친구", "스탬프"],
             difficultyOptions: ["EASY", "MEDIUM", "HARD"],
-            visibilityOptions: [
-                { value: "public", label: "공개" },
-                { value: "private", label: "비공개" },
+            isPrivate: [
+                { value: false, label: "공개" },
+                { value: true, label: "비공개" },
             ],
             formData: {
                 location: "",
+                attractionId: null, // 선택된 관광지의 ID (백엔드 DTO에 맞게 변경)
                 title: "",
                 difficulty: "EASY",
-                description: "",
+                questDescription: "", // 백엔드 DTO에 맞게 변경
                 stampDescription: "",
-                visibility: "public",
+                isPrivate: false, // 백엔드 DTO에 맞게 변경
             },
             // 검색 모달 관련 상태
             showSearchModal: false,
             searchKeyword: "",
             searchResults: [],
             searchPerformed: false,
+            searchLoading: false,
+            searchError: null,
+            // 폼 제출 관련 상태
+            loading: false,
+            error: null,
         };
     },
     methods: {
+        // 관광지 검색 모달 열기
         searchLocation() {
             this.showSearchModal = true;
-            this.searchKeyword = this.formData.location; // 현재 입력된 값을 검색어로 설정
+            this.searchKeyword = this.formData.location;
+            this.searchResults = [];
+            this.searchPerformed = false;
+            this.searchError = null;
+
             if (this.searchKeyword.trim()) {
-                this.performSearch(); // 이미 값이 있으면 자동 검색
+                this.performSearch();
             }
         },
-        performSearch() {
-            // 검색어가 비어있으면 검색하지 않음
+
+        // 관광지 검색 실행
+        async performSearch() {
             if (!this.searchKeyword.trim()) {
+                this.searchError = "검색어를 입력해주세요.";
                 return;
             }
 
+            this.searchLoading = true;
+            this.searchError = null;
             this.searchPerformed = true;
-            // 실제로는 API 호출로 대체될 부분
-            // 예시 데이터
-            this.searchResults = [
-                { name: "서울 남산타워", address: "서울특별시 용산구 남산공원길 105" },
-                { name: "경복궁", address: "서울특별시 종로구 사직로 161" },
-                { name: "부산 해운대 해수욕장", address: "부산광역시 해운대구 해운대해변로 264" },
-                { name: "제주 성산일출봉", address: "제주특별자치도 서귀포시 성산읍 일출로 284-12" },
-                { name: "경주 불국사", address: "경상북도 경주시 불국로 385" },
-            ].filter(
-                (item) =>
-                    item.name.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
-                    item.address.toLowerCase().includes(this.searchKeyword.toLowerCase())
-            );
 
-            // 실제 API 연동 시 아래 코드로 대체
-            // axios.get(`/api/locations?query=${this.searchKeyword}`)
-            //   .then(response => {
-            //     this.searchResults = response.data;
-            //   })
-            //   .catch(error => {
-            //     console.error('검색 오류:', error);
-            //   });
+            try {
+                const response = await axios.get(`${API_URL}/attractions/search-attractions`, {
+                    params: {
+                        searchKeyword: this.searchKeyword,
+                    },
+                });
+
+                // 백엔드 응답 형식에 맞게 조정 (attractions 배열 추출)
+                this.searchResults = response.data.attractions || [];
+            } catch (error) {
+                console.error("관광지 검색 중 오류가 발생했습니다:", error);
+
+                if (error.response) {
+                    if (error.response.status === 400) {
+                        this.searchError = "잘못된 검색어입니다.";
+                    } else if (error.response.status === 500) {
+                        this.searchError = "서버 오류가 발생했습니다.";
+                    } else {
+                        this.searchError = `검색 오류: ${error.response.data.message || "알 수 없는 오류"}`;
+                    }
+                } else {
+                    this.searchError = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                }
+            } finally {
+                this.searchLoading = false;
+            }
         },
-        selectLocation(location) {
-            this.formData.location = location.name;
+
+        // 관광지 선택
+        selectLocation(attraction) {
+            this.formData.location = attraction.name; // 관광지명은 title 필드 사용
+            this.formData.attractionId = attraction.attractionId; // 백엔드 DTO에 맞게 변경
             this.closeSearchModal();
         },
+
+        // 검색 모달 닫기
         closeSearchModal() {
             this.showSearchModal = false;
+            this.searchResults = [];
+            this.searchPerformed = false;
+            this.searchError = null;
         },
-        submitForm() {
+
+        // 폼 제출
+        async submitForm() {
             // 입력 값 검증
             if (!this.formData.location.trim()) {
+                this.error = "관광지를 입력해주세요";
                 alert("관광지를 입력해주세요");
                 return;
             }
 
             if (!this.formData.title.trim()) {
+                this.error = "퀘스트 제목을 입력해주세요";
                 alert("퀘스트 제목을 입력해주세요");
                 return;
             }
 
-            if (!this.formData.description.trim()) {
+            if (!this.formData.questDescription.trim()) {
+                this.error = "퀘스트 설명을 입력해주세요";
                 alert("퀘스트 설명을 입력해주세요");
                 return;
             }
 
             if (!this.formData.stampDescription.trim()) {
+                this.error = "스탬프 설명을 입력해주세요";
                 alert("스탬프 설명을 입력해주세요");
                 return;
             }
 
-            console.log("폼 제출됨:", this.formData);
-            alert("퀘스트가 등록되었습니다!");
-            // 실제 구현: axios를 이용한 API 호출
-            // axios.post('/api/quests', this.formData)
-            //   .then(response => {
-            //     alert('퀘스트가 성공적으로 등록되었습니다!');
-            //     this.resetForm();
-            //   })
-            //   .catch(error => {
-            //     console.error('등록 오류:', error);
-            //   });
+            this.loading = true;
+            this.error = null;
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                this.error = "로그인이 필요합니다.";
+                this.loading = false;
+                return;
+            }
+
+            // 백엔드로 전송할 데이터 구성 (QuestRequestDto에 맞게)
+            const submitData = {
+                attraction_id: this.formData.attractionId, // snake_case로 변환
+                title: this.formData.title,
+                quest_description: this.formData.questDescription, // snake_case로 변환
+                difficulty: this.formData.difficulty,
+                is_private: this.formData.isPrivate, // snake_case로 변환
+                stamp_description: this.formData.stampDescription, // snake_case로 변환
+            };
+
+            try {
+                const response = await axios.post(`${API_URL}/quests`, submitData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // 성공 처리 - 백엔드 응답 메시지 사용
+                const successMessage = response.data.message || "퀘스트가 성공적으로 등록되었습니다!";
+                alert(successMessage);
+                this.resetForm();
+
+                // 퀘스트 목록 페이지로 이동 (선택사항)
+                this.$router.push("/quests");
+            } catch (error) {
+                console.error("퀘스트 등록 중 오류가 발생했습니다:", error);
+
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        this.error = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                    } else if (error.response.status === 400) {
+                        this.error = `입력 오류: ${error.response.data.message || "잘못된 입력값입니다."}`;
+                    } else {
+                        this.error = `등록 오류: ${error.response.data.message || "알 수 없는 오류"}`;
+                    }
+                } else {
+                    this.error = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                }
+            } finally {
+                this.loading = false;
+            }
         },
+
+        // 폼 초기화
         resetForm() {
             this.formData = {
                 location: "",
+                attractionId: null,
                 title: "",
                 difficulty: "EASY",
-                description: "",
-                visibility: "public",
+                questDescription: "",
+                stampDescription: "",
+                isPrivate: false,
             };
+            this.error = null;
+        },
+
+        // 에러 메시지 지우기
+        clearError() {
+            this.error = null;
         },
     },
 };
@@ -449,6 +546,13 @@ body {
         padding: 0.75rem 0;
         font-size: 0.875rem;
     }
+}
+
+.form-error {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
 }
 
 /* 모달 스타일 */

@@ -92,6 +92,15 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+
+// API 기본 URL
+const API_URL = "http://localhost:8080";
+
+// 인증 스토어 가져오기
+const authStore = useAuthStore();
+
 export default {
     name: "QuestEdit",
     data() {
@@ -100,94 +109,224 @@ export default {
             menuItems: ["퀘스트", "여행", "커뮤니티", "친구", "스탬프"],
             difficultyOptions: ["EASY", "MEDIUM", "HARD"],
             visibilityOptions: [
-                { value: "public", label: "공개" },
-                { value: "private", label: "비공개" },
+                { value: false, label: "공개" },
+                { value: true, label: "비공개" },
             ],
             formData: {
-                id: 2,
-                location: "서울 남산타워",
-                address: "서울특별시 용산구 남산공원길 105",
-                title: "남산타워 가자",
-                difficulty: "MEDIUM",
-                description: "서울의 랜드마크 ! 남산타워에서 가보세요 ~",
-                stampDescription:
-                    "서울 남산타워를 방문하고 퀘스트를 완료하여 획득한 스탬프입니다. 남산타워에서 서울 전경을 구경했습니다.",
-                visibility: "public",
+                id: null,
+                attractionId: null,
+                location: "",
+                address: "",
+                title: "",
+                difficulty: "EASY",
+                questDescription: "",
+                stampDescription: "",
+                visibility: false,
             },
             originalData: null,
             showConfirmModal: false,
+            // 상태 관리
+            loading: false,
+            submitting: false,
+            error: null,
+            questId: null,
         };
     },
-    created() {
-        // 실제 구현 시: API에서 퀘스트 데이터 불러오기
-        // const questId = this.$route.params.id;
-        // axios.get(`/api/quests/${questId}`)
-        //     .then(response => {
-        //         this.formData = response.data;
-        //         this.originalData = JSON.parse(JSON.stringify(response.data));
-        //     })
-        //     .catch(error => {
-        //         console.error('퀘스트 불러오기 오류:', error);
-        //     });
+    async created() {
+        // URL 파라미터에서 퀘스트 ID 가져오기
+        this.questId = this.$route.params.questId;
 
-        // 현재는 더미 데이터 저장
-        this.originalData = JSON.parse(JSON.stringify(this.formData));
+        if (!this.questId) {
+            this.error = "퀘스트 ID가 없습니다.";
+            return;
+        }
+
+        // 퀘스트 데이터 로드
+        await this.fetchQuestData();
     },
     methods: {
-        submitForm() {
+        // 백엔드에서 퀘스트 데이터 가져오기
+        async fetchQuestData() {
+            this.loading = true;
+            this.error = null;
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                this.error = "로그인이 필요합니다.";
+                this.loading = false;
+                return;
+            }
+
+            try {
+                const response = await axios.get(`${API_URL}/quests/${this.questId}`, {
+                    // headers: {
+                    //     Authorization: `Bearer ${token}`,
+                    // },
+                });
+
+                // 백엔드 응답 데이터를 폼 데이터로 변환
+                const questData = response.data.quest;
+                this.formData = {
+                    attractionId: questData.attractionId,
+                    location: questData.attractionName,
+                    address: questData.attractionAddr,
+                    title: questData.questTitle,
+                    difficulty: questData.questDifficulty,
+                    description: questData.questDescription,
+                    stampDescription: questData.stampDescription,
+                    visibility: questData.private,
+                };
+
+                // 원본 데이터 저장 (변경사항 감지용)
+                this.originalData = JSON.parse(JSON.stringify(this.formData));
+            } catch (error) {
+                console.error("퀘스트 데이터를 불러오는 중 오류가 발생했습니다:", error);
+
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        this.error = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                    } else if (error.response.status === 404) {
+                        this.error = "존재하지 않는 퀘스트입니다.";
+                    } else if (error.response.status === 403) {
+                        this.error = "이 퀘스트를 수정할 권한이 없습니다.";
+                    } else {
+                        this.error = `오류가 발생했습니다: ${error.response.data.message || "알 수 없는 오류"}`;
+                    }
+                } else {
+                    this.error = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                }
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        // 폼 제출 (퀘스트 수정)
+        async submitForm() {
             // 입력 검증
             if (!this.formData.title.trim()) {
-                alert("퀘스트 제목을 입력해주세요");
+                this.error = "퀘스트 제목을 입력해주세요.";
                 return;
             }
 
             if (!this.formData.description.trim()) {
-                alert("퀘스트 설명을 입력해주세요");
+                this.error = "퀘스트 설명을 입력해주세요.";
                 return;
             }
 
             if (!this.formData.stampDescription.trim()) {
-                alert("퀘스트 설명을 입력해주세요");
+                this.error = "스탬프 설명을 입력해주세요.";
                 return;
             }
 
-            // 실제 구현 시: API 호출
-            // axios.put(`/api/quests/${this.formData.id}`, this.formData)
-            //     .then(response => {
-            //         alert('퀘스트가 성공적으로 수정되었습니다!');
-            //         this.$router.push('/quests');
-            //     })
-            //     .catch(error => {
-            //         console.error('수정 오류:', error);
-            //     });
+            this.submitting = true;
+            this.error = null;
 
-            // 현재는 성공 메시지만 표시
-            console.log("수정된 퀘스트 데이터:", this.formData);
-            alert("퀘스트가 성공적으로 수정되었습니다!");
-            // 실제 구현 시: 목록 페이지로 이동
-            // this.$router.push('/quests');
+            const token = authStore.accessToken;
+
+            if (!token) {
+                this.error = "로그인이 필요합니다.";
+                this.submitting = false;
+                return;
+            }
+
+            // 백엔드로 전송할 데이터 구성 (snake_case)
+            const updateData = {
+                attraction_id: this.formData.attractionId,
+                title: this.formData.title,
+                quest_description: this.formData.description,
+                difficulty: this.formData.difficulty,
+                is_private: this.formData.visibility,
+                stamp_description: this.formData.stampDescription,
+            };
+
+            console.log("updateData : ", updateData);
+
+            try {
+                const response = await axios.patch(`${API_URL}/quests/${this.questId}`, updateData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // 성공 처리 - 백엔드 응답 메시지 사용
+                const successMessage = response.data.message || "퀘스트가 성공적으로 수정되었습니다!";
+                alert(successMessage);
+
+                // 퀘스트 목록으로 이동
+                this.$router.push("/quests");
+            } catch (error) {
+                console.error("퀘스트 수정 중 오류가 발생했습니다:", error);
+
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        this.error = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                    } else if (error.response.status === 403) {
+                        this.error = "이 퀘스트를 수정할 권한이 없습니다.";
+                    } else if (error.response.status === 400) {
+                        this.error = `입력 오류: ${error.response.data.message || "잘못된 입력값입니다."}`;
+                    } else {
+                        this.error = `수정 오류: ${error.response.data.message || "알 수 없는 오류"}`;
+                    }
+                } else {
+                    this.error = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                }
+                alert(this.error);
+            } finally {
+                this.submitting = false;
+            }
         },
+
+        // 수정 취소
         cancelEdit() {
             // 변경사항이 있는지 확인
-            if (JSON.stringify(this.formData) !== JSON.stringify(this.originalData)) {
+            if (this.hasChanges()) {
                 this.showConfirmModal = true;
             } else {
                 this.goBack();
             }
         },
+
+        // 변경사항 감지
+        hasChanges() {
+            if (!this.originalData) return false;
+            return JSON.stringify(this.formData) !== JSON.stringify(this.originalData);
+        },
+
+        // 확인 모달 닫기
         closeConfirmModal() {
             this.showConfirmModal = false;
         },
+
+        // 취소 확인
         confirmCancel() {
             this.closeConfirmModal();
             this.goBack();
         },
-        goBack() {
-            // 실제 구현 시: 이전 페이지로 이동
-            // this.$router.go(-1);
 
-            // 현재는 알림만 표시
-            alert("퀘스트 수정이 취소되었습니다.");
+        // 이전 페이지로 이동
+        goBack() {
+            // 퀘스트 상세 페이지로 이동 (또는 이전 페이지)
+            this.$router.push(`/quests/${this.questId}`);
+            // 또는 이전 페이지로: this.$router.go(-1);
+        },
+
+        // 에러 메시지 지우기
+        clearError() {
+            this.error = null;
+        },
+
+        // 날짜 형식 변환 (필요시 사용)
+        formatDate(dateString) {
+            if (!dateString) return "";
+
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}.${month}.${day}`;
         },
     },
 };
