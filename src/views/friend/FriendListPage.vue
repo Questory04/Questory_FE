@@ -80,9 +80,8 @@
             <div class="top-content">
               <div class="profile" />
               <div class="user-info">
-                <p class="nickname">{{ req.nickname }}</p>
-                <p class="email">{{ req.email }}</p>
-                <p class="level">Lv {{ getLevel(req.level) }}</p>
+                <p class="nickname">{{ req.targetNickname }}</p>
+                <p class="email">{{ req.targetEmail }}</p>
               </div>
             </div>
             <div class="actions-bottom">
@@ -149,8 +148,10 @@ const setTab = (tab) => {
     searchEmail.value = ''
     searchResults.value = []
     fetchFollowRequests()
+    fetchSentFriendRequests()
   }
 }
+
 
 const filteredFriends = computed(() => {
   if (!searchQuery.value) return friends.value
@@ -232,6 +233,27 @@ const sendFriendRequest = async (targetEmail) => {
     alert(err?.response?.data?.message || '친구 요청 중 오류가 발생했습니다.')
   }
 }
+
+const fetchSentFriendRequests = async () => {
+  try {
+    const token = authStore.accessToken || localStorage.getItem('accessToken')
+    const res = await axios.get('http://localhost:8080/friends/request/sent', {
+      params: {
+        page: 0,
+        size: 10
+      },
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    requestingList.value = res.data.content || []
+  } catch (err) {
+    console.error('❌ 보낸 친구 요청 목록 로딩 실패:', err)
+    requestingList.value = []
+  }
+}
+
 </script>
 
 <style scoped>
