@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class="actions-bottom">
-          <button class="request">친구 요청</button>
+          <button class="request" @click="sendFriendRequest(user.email)">친구 요청</button>
         </div>
       </div>
     </div>
@@ -212,6 +212,24 @@ const fetchFollowRequests = async () => {
     receivedRequestList.value = res.data
   } catch (err) {
     console.error('❌ 친구 요청 목록 불러오기 실패:', err)
+  }
+}
+
+const sendFriendRequest = async (targetEmail) => {
+  try {
+    const token = authStore.accessToken || localStorage.getItem('accessToken')
+    const res = await axios.post('http://localhost:8080/friends/request', {
+      email: targetEmail
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    alert(res.data.message || '친구 요청을 보냈어요!')
+  } catch (err) {
+    console.error('❌ 친구 요청 실패:', err)
+    alert(err?.response?.data?.message || '친구 요청 중 오류가 발생했습니다.')
   }
 }
 </script>
