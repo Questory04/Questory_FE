@@ -67,8 +67,12 @@
               </div>
             </div>
             <div class="actions-bottom">
-              <button class="request">수락</button>
-              <button class="delete">거절</button>
+              <button class="request" @click="updateFriendRequestStatus(req.requesterEmail, 'ACCEPTED')">
+                수락
+              </button>
+              <button class="delete" @click="updateFriendRequestStatus(req.requesterEmail, 'DENIED')">
+                거절
+              </button>
             </div>
           </div>
         </div>      
@@ -186,7 +190,7 @@ const debouncedSearch = debounce(async () => {
   }
 }, 500)
 
-onMounted(async () => {
+const fetchFriends = async () => {
   try {
     const token = authStore.accessToken || localStorage.getItem('accessToken')
     const res = await axios.get('http://localhost:8080/friends', {
@@ -194,12 +198,11 @@ onMounted(async () => {
         Authorization: `Bearer ${token}`
       }
     })
-
     friends.value = res.data
   } catch (err) {
     console.error('❌ 친구 목록을 불러오지 못했습니다:', err)
   }
-})
+}
 
 const fetchFollowRequests = async () => {
   try {
@@ -294,6 +297,33 @@ const cancelFriendRequest = async (targetEmail) => {
   }
 }
 
+const updateFriendRequestStatus = async (requesterEmail, status) => {
+  try {
+    const token = authStore.accessToken || localStorage.getItem('accessToken')
+
+    const res = await axios.patch('http://localhost:8080/friends/request', {
+      requesterEmail: requesterEmail,
+      status: status
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    alert(res.data.message || '친구 요청 상태가 업데이트되었습니다.')
+
+    // 요청 목록 갱신
+    await fetchFollowRequests()
+    await fetchSentFriendRequests()
+    await fetchFriends()
+  } catch (err) {
+    console.error('❌ 친구 요청 상태 변경 실패:', err)
+    alert(err?.response?.data?.message || '친구 요청 상태 변경 중 오류가 발생했습니다.')
+  }
+}
+
+onMounted(fetchFriends)
 
 </script>
 
