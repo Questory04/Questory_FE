@@ -143,8 +143,8 @@
                     </p>
 
                     <div class="modal-buttons">
-                        <button class="start-btn" @click="giveupQuest">포기하기</button>
-                        <button class="cancel-btn" @click="closeDetailModal">닫기</button>
+                        <button class="giveup-btn" @click="giveupQuest">포기하기</button>
+                        <button class="close-modal-btn" @click="closeDetailModal">닫기</button>
                     </div>
                 </div>
             </div>
@@ -280,6 +280,65 @@ export default {
         },
         giveupQuest() {
             // 퀘스트 포기하기 로직 작성
+            // this.$router.push(`/modify-quest/${this.selectedQuest.questId}`);
+
+            if (!confirm(`"${this.selectedQuest.title}" 퀘스트를 정말 포기하시겠습니까?`)) {
+                return;
+            }
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            axios
+                .patch(
+                    `${API_URL}/quests/${this.selectedQuest.questId}/cancel`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                )
+                .then((response) => {
+                    // 성공 메시지 표시
+                    alert(response.data.message || "해당 퀘스트가 포기되었습니다.");
+
+                    // 모달 닫기
+                    this.closeDetailModal();
+
+                    // 퀘스트 목록 새로고침
+                    this.fetchQuests();
+                })
+                .catch((error) => {
+                    console.error("퀘스트 포기 중 오류가 발생했습니다:", error);
+
+                    let errorMessage = "퀘스트 포기 중 오류가 발생했습니다.";
+
+                    if (error.response) {
+                        if (error.response.status === 401) {
+                            errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                        } else if (error.response.status === 403) {
+                            errorMessage = "포기 권한이 없습니다.";
+                        } else if (error.response.status === 404) {
+                            errorMessage = "해당 퀘스트를 찾을 수 없습니다.";
+                        } else if (error.response.data && error.response.data.message) {
+                            errorMessage = error.response.data.message;
+                        }
+                    } else if (error.request) {
+                        errorMessage = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                    }
+
+                    alert(errorMessage);
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+
+            this.closeDetailModal();
         },
     },
 };
@@ -582,7 +641,7 @@ body {
     margin-top: 2rem;
 }
 
-.start-btn {
+.giveup-btn {
     background-color: #5a9bd8;
     color: white;
     border: none;
@@ -594,11 +653,11 @@ body {
     transition: background-color 0.3s;
 }
 
-.start-btn:hover {
+.giveup-btn:hover {
     background-color: #4a90e2;
 }
 
-.cancel-btn {
+.close-modal-btn {
     background-color: #f1f1f1;
     color: #666;
     border: none;
@@ -610,7 +669,7 @@ body {
     transition: background-color 0.3s;
 }
 
-.cancel-btn:hover {
+.close-modal-btn:hover {
     background-color: #e0e0e0;
 }
 

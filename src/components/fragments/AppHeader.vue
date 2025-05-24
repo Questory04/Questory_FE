@@ -5,10 +5,10 @@
             <template v-if="isLoggedIn">
                 <nav class="nav-menu">
                     <div class="nav-dropdown">
-                        <a href="" class="nav-item">퀘스트</a>
+                        <a href="/quests" class="nav-item">퀘스트</a>
                         <div class="dropdown-content">
                             <a href="/quests" class="dropdown-item">전체 퀘스트</a>
-                            <a href="/#" class="dropdown-item">진행중인 퀘스트</a>
+                            <a href="/quests/me/active" class="dropdown-item">진행중인 퀘스트</a>
                             <a href="/quests/me/created" class="dropdown-item">내가 만든 퀘스트</a>
                         </div>
                     </div>
