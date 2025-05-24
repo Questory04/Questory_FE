@@ -85,7 +85,9 @@
                 </div>
               </div>
               <div class="actions-bottom">
-                <button class="delete">요청 취소</button>
+                <button class="delete" @click="cancelFriendRequest(req.targetEmail)">
+                  요청 취소
+                </button>
               </div>
             </div>
           </div>
@@ -266,6 +268,31 @@ const fetchSentFriendRequests = async () => {
     requestingList.value = []
   }
 }
+
+
+const cancelFriendRequest = async (targetEmail) => {
+  try {
+    const token = localStorage.getItem('accessToken')
+
+    const res = await axios.delete('http://localhost:8080/friends/request', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      data: {
+        email: targetEmail
+      }
+    })
+
+    await fetchSentFriendRequests()
+
+    alert(res.data.message || '친구 요청이 취소되었습니다!')
+  } catch (err) {
+    console.error('❌ 친구 요청 취소 실패:', err)
+    alert(err?.response?.data?.message || '친구 요청 취소 중 오류가 발생했습니다.')
+  }
+}
+
 
 </script>
 
