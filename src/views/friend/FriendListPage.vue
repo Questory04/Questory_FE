@@ -167,7 +167,7 @@ const debouncedSearch = debounce(async () => {
 
   try {
     const token = authStore.accessToken || localStorage.getItem('accessToken')
-    const res = await axios.get('http://localhost:8080/me/search', {
+    const res = await axios.get('http://localhost:8080/friends/search', {
       params: {
         email: searchEmail.value,
         page: 0,
@@ -285,6 +285,7 @@ const cancelFriendRequest = async (targetEmail) => {
     })
 
     await fetchSentFriendRequests()
+    await debouncedSearch()
 
     alert(res.data.message || '친구 요청이 취소되었습니다!')
   } catch (err) {
