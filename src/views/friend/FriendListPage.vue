@@ -71,11 +71,12 @@
               <button class="delete">거절</button>
             </div>
           </div>
-        </div>
-        <div v-if="requestingList.length">
+        </div>      
+      </div>
+      <div v-if="requestingList.length">
           <h3 class="subtitle">내가 요청한 친구 목록</h3>
           <div class="friend-list">
-            <div v-for="req in requestingList" :key="req.email" class="friend-card">
+            <div v-for="req in requestingList" :key="req.targetEmail" class="friend-card">
               <div class="top-content">
                 <div class="profile" />
                 <div class="user-info">
@@ -89,8 +90,6 @@
             </div>
           </div>
         </div>
-      
-      </div>
     </div>
 
     <!-- 차단 목록 -->
@@ -129,10 +128,7 @@ const searchEmail = ref('')
 const searchResults = ref([])
 
 const friends = ref([])
-const requestingList = ref([
-  { nickname: '보낸요청1', email: 'sent1@example.com', level: 210 },
-  { nickname: '보낸요청2', email: 'sent2@example.com', level: 140 }
-])
+const requestingList = ref([])
 const receivedRequestList = ref([])
 const blockedFriends = ref([
   { nickname: '차단친구', email: 'blocked@example.com', level: 150 }
@@ -260,6 +256,9 @@ const fetchSentFriendRequests = async () => {
         Authorization: `Bearer ${token}`
       }
     })
+
+    console.log(requestingList.value);
+    console.log('응답 확인:', res.data)
 
     requestingList.value = res.data.content || []
   } catch (err) {
