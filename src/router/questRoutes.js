@@ -10,6 +10,11 @@ export default [
         component: () => import("@/views/quest/GetMyQuestsListPage.vue"),
     },
     {
+        path: "/quests/me/active",
+        name: "quests-me-active",
+        component: () => import("@/views/quest/GetActiveQuestsListPage.vue"),
+    },
+    {
         path: "/add-quest",
         name: "add-quest",
         component: () => import("@/views/quest/AddQuestPage.vue"),
