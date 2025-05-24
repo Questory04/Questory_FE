@@ -26,7 +26,7 @@
             </div>
           </div>
           <div class="actions-bottom">
-            <button class="delete">친구 삭제</button>
+            <button class="delete" @click="deleteFriend(friend.email)">친구 삭제</button>
           </div>
         </div>
       </div>
@@ -295,6 +295,29 @@ const updateFriendRequestStatus = async (requesterEmail, status) => {
   } catch (err) {
     console.error('❌ 친구 요청 상태 변경 실패:', err)
     alert(err?.response?.data?.message || '친구 요청 상태 변경 중 오류가 발생했습니다.')
+  }
+}
+
+const deleteFriend = async (targetEmail) => {
+  try {
+    const token = localStorage.getItem('accessToken') // 또는 authStore.accessToken 등
+
+    const res = await axios.delete('http://localhost:8080/friends', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      data: {
+        email: targetEmail
+      }
+    })
+
+    alert(res.data.message || '친구가 삭제되었습니다.')
+    // 필요하다면 친구 목록 갱신
+    await fetchFriends()
+  } catch (err) {
+    console.error('❌ 친구 삭제 실패:', err)
+    alert(err?.response?.data?.message || '친구 삭제 중 오류가 발생했습니다.')
   }
 }
 
