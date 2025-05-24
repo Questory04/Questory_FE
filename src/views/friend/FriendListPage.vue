@@ -6,7 +6,6 @@
     <div class="tabs">
       <button :class="{ active: currentTab === 'list' }" @click="setTab('list')">친구 목록</button>
       <button :class="{ active: currentTab === 'request' }" @click="setTab('request')">친구 요청</button>
-      <button :class="{ active: currentTab === 'blocked' }" @click="setTab('blocked')">차단 목록</button>
     </div>
 
     <!-- 친구 목록 -->
@@ -27,7 +26,6 @@
             </div>
           </div>
           <div class="actions-bottom">
-            <button class="block">차단하기</button>
             <button class="delete">친구 삭제</button>
           </div>
         </div>
@@ -97,26 +95,6 @@
           </div>
         </div>
     </div>
-
-    <!-- 차단 목록 -->
-    <div v-if="currentTab === 'blocked'">
-      <p class="count">차단한 친구 수 : {{ blockedFriends.length }}명</p>
-      <div class="friend-list">
-        <div v-for="blocked in blockedFriends" :key="blocked.email" class="friend-card">
-          <div class="top-content">
-            <div class="profile" />
-            <div class="user-info">
-              <p class="nickname">{{ blocked.nickname }}</p>
-              <p class="email">{{ blocked.email }}</p>
-              <p class="level">Lv {{ getLevel(blocked.level) }}</p>
-            </div>
-          </div>
-          <div class="actions-bottom">
-            <button class="delete">차단 해제</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -136,9 +114,6 @@ const searchResults = ref([])
 const friends = ref([])
 const requestingList = ref([])
 const receivedRequestList = ref([])
-const blockedFriends = ref([
-  { nickname: '차단친구', email: 'blocked@example.com', level: 150 }
-])
 
 const getLevel = (exp) => {
   const value = typeof exp === 'number' ? exp : Number(exp)
