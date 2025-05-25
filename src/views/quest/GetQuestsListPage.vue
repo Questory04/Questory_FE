@@ -227,6 +227,8 @@ export default {
                         sidoName: quest.attractionAddress,
                         difficulty: quest.questDifficulty,
                         description: quest.questDescription,
+                        attractionLatitude: quest.attractionLatitude,
+                        attractionLongitude: quest.attractionLongitude,
                     }));
 
                     // 페이지네이션 정보 업데이트
@@ -236,9 +238,6 @@ export default {
                         totalPages: paginationData.totalPages || 1,
                         pageSize: paginationData.pageSize || 6,
                     };
-
-                    // 필터링 적용
-                    // this.applyFilter();
                 })
                 .catch((error) => {
                     console.error("퀘스트 데이터를 불러오는 중 오류가 발생했습니다:", error);
