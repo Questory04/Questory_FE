@@ -5,10 +5,10 @@
 
     <div class="editor-content">
       <!-- 지도 영역 -->
-      <div class="map-area">
-        <p class="map-placeholder">지도!!!!!!!</p>
-        <!-- 실제 지도 컴포넌트 삽입 예정 -->
-      </div>
+
+      <KakaoMap :lat="coordinate.lat" :lng="coordinate.lng" :draggable="true" width="50rem" height="40rem">
+        <KakaoMapMarker :lat="coordinate.lat" :lng="coordinate.lng"></KakaoMapMarker>
+      </KakaoMap>
 
       <!-- 우측 컨트롤 영역 -->
       <div class="sidebar">
@@ -53,14 +53,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const days = [1, 2, 3, 4]
-const activeDay = ref(1)
+import { KakaoMap, KakaoMapMarker } from 'vue3-kakao-maps';
+const coordinate = {
+  lat: 33.450701,
+  lng: 126.570667
+};
 </script>
 
 <style scoped>
-/* 전체 컨테이너 */
 .plan-editor-container {
   width: 100%;
   max-width: 1200px;
