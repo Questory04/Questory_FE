@@ -37,19 +37,45 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 
 const plan = reactive({
   title: '',
+  description: '',
   startDate: '',
   endDate: '',
-  description: ''
+  routes: []  // 임시로 비워두고, 추후 관광지 추가 시 동적으로 삽입
 })
 
-const handleSubmit = () => {
-  console.log('계획 생성됨:', plan)
-  router.push(`/plans/edit`)
+// 예시: route 추가 예시
+// plan.routes.push({ attractionId: 1, day: 1, sequence: 1 })
+
+const handleSubmit = async () => {
+  try {
+    const response = await axios.post(
+      'http://localhost:8080/plans',
+      {
+        ...plan,
+        // 날짜는 문자열을 ISO 형식으로 변환
+        startDate: `${plan.startDate}T00:00:00`,
+        endDate: `${plan.endDate}T00:00:00`
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    console.log(response.data.message)
+    router.push('/plans/edit') // 필요 시 생성된 planId 사용
+  } catch (err) {
+    console.error(err)
+    alert('여행 계획 생성 실패')
+  }
 }
 
 const resetForm = () => {
