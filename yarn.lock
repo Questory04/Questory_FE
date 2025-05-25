@@ -3535,11 +3535,6 @@ fs.realpath@^1.0.0:
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
 
-fsevents@~2.3.2:
-  version "2.3.3"
-  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
-  integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
-
 function-bind@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz"
@@ -4204,6 +4199,11 @@ jsonfile@^6.0.1:
     universalify "^2.0.0"
   optionalDependencies:
     graceful-fs "^4.1.6"
+
+kakao.maps.d.ts@^0.1.39:
+  version "0.1.40"
+  resolved "https://registry.npmjs.org/kakao.maps.d.ts/-/kakao.maps.d.ts-0.1.40.tgz"
+  integrity sha512-nX69MB1ok04epe3OqS+/tEeWBbU31GSQbvDPJmQRRltzzqn6t4jBsO5v1nzalUjCKzwcH2CptOc767NZ7Hbu3g==
 
 keyv@^4.5.3:
   version "4.5.4"
@@ -6517,6 +6517,13 @@ vue@*, "vue@^2 || ^3.2.13", "vue@^2.7.0 || ^3.5.11", vue@^3.2.0, vue@^3.2.13, vu
     "@vue/runtime-dom" "3.5.13"
     "@vue/server-renderer" "3.5.13"
     "@vue/shared" "3.5.13"
+
+vue3-kakao-maps@^2.3.10:
+  version "2.3.10"
+  resolved "https://registry.npmjs.org/vue3-kakao-maps/-/vue3-kakao-maps-2.3.10.tgz"
+  integrity sha512-vzzxvdw1ZtyID4clA/LFg++Qf1uTq49ksnL3ejqbp/rB+WVRrulSQ0ja+L929VFehbQY628lJPsp9KwxC6VrNA==
+  dependencies:
+    kakao.maps.d.ts "^0.1.39"
 
 vuetify@^3.8.4:
   version "3.8.4"
