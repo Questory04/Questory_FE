@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import authRoutes from "./authRoutes";
 import mainRoutes from "./mainRoutes";
+import planRoutes from "./planRoutes";
 import stampRoutes from "./stampRoutes";
 import questRoutes from "./questRoutes";
 import friendRoutes from "./friendRoutes";
@@ -9,6 +10,7 @@ import friendRoutes from "./friendRoutes";
 const routes = [
     ...authRoutes,
     ...mainRoutes,
+    ...planRoutes,
     ...stampRoutes,
     ...questRoutes,
     ...friendRoutes,
