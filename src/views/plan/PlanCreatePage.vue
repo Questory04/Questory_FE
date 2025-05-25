@@ -36,6 +36,9 @@
 
 <script setup>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const plan = reactive({
   title: '',
@@ -46,6 +49,7 @@ const plan = reactive({
 
 const handleSubmit = () => {
   console.log('계획 생성됨:', plan)
+  router.push(`/plans/edit`)
 }
 
 const resetForm = () => {
