@@ -23,7 +23,7 @@
           <tr v-for="(post, index) in posts" :key="post.id">
             <td>{{ posts.length - index }}</td>
             <td class="title-cell">
-              <span class="title-text" @click="goToDetail(post.id)">
+              <span class="title-text" @click="goToDetail(post.postId)">
                 {{ post.title }}
               </span>
             </td>
