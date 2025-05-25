@@ -224,6 +224,8 @@ export default {
                         sidoName: quest.attractionAddress,
                         difficulty: quest.questDifficulty,
                         description: quest.questDescription,
+                        attractionLatitude: quest.attractionLatitude,
+                        attractionLongitude: quest.attractionLongitude,
                     }));
 
                     // 페이지네이션 정보 업데이트

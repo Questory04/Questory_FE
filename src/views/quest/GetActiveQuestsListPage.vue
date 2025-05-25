@@ -144,7 +144,8 @@
 
                     <div class="modal-buttons">
                         <button class="giveup-btn" @click="giveupQuest">포기하기</button>
-                        <button class="close-modal-btn" @click="closeDetailModal">닫기</button>
+                        <!-- <button class="close-modal-btn" @click="closeDetailModal">닫기</button> -->
+                        <button class="close-modal-btn" @click="completeQuest">완료</button>
                     </div>
                 </div>
             </div>
@@ -224,7 +225,12 @@ export default {
                         sidoName: quest.attractionAddress,
                         difficulty: quest.questDifficulty,
                         description: quest.questDescription,
+                        attractionLatitude: quest.attractionLatitude,
+                        attractionLongitude: quest.attractionLongitude,
                     }));
+
+                    console.log("quests");
+                    console.log(this.quests);
 
                     // 페이지네이션 정보 업데이트
                     this.pagination = {
@@ -233,9 +239,6 @@ export default {
                         totalPages: paginationData.totalPages || 1,
                         pageSize: paginationData.pageSize || 6,
                     };
-
-                    // 필터링 적용
-                    // this.applyFilter();
                 })
                 .catch((error) => {
                     console.error("퀘스트 데이터를 불러오는 중 오류가 발생했습니다:", error);
@@ -279,9 +282,7 @@ export default {
             document.body.style.overflow = ""; // 모달 닫힐 때 배경 스크롤 복원
         },
         giveupQuest() {
-            // 퀘스트 포기하기 로직 작성
-            // this.$router.push(`/modify-quest/${this.selectedQuest.questId}`);
-
+            // 퀘스트 포기하기 로직
             if (!confirm(`"${this.selectedQuest.title}" 퀘스트를 정말 포기하시겠습니까?`)) {
                 return;
             }
@@ -339,6 +340,101 @@ export default {
                 });
 
             this.closeDetailModal();
+        },
+        async completeQuest() {
+            // 퀘스트 완료하기 로직
+            try {
+                const token = authStore.accessToken;
+
+                if (!token) {
+                    alert("로그인이 필요합니다.");
+                    return;
+                }
+
+                // 위치 정보 가져오기를 Promise로 래핑
+                const position = await this.getUserLocation();
+
+                console.log("위치 정보 가져오기 성공!");
+                console.log("위도:", position.coords.latitude);
+                console.log("경도:", position.coords.longitude);
+
+                // 백엔드로 전송할 데이터 구성
+                const submitData = {
+                    attraction_latitude: this.selectedQuest.attractionLatitude,
+                    attraction_longitude: this.selectedQuest.attractionLongitude,
+                    user_latitude: position.coords.latitude,
+                    user_longitude: position.coords.longitude,
+                };
+
+                // 백엔드로 데이터 전송
+                console.log("submit Data");
+                console.log(submitData);
+                axios
+                    .patch(`${API_URL}/quests/${this.selectedQuest.questId}/complete`, submitData, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    })
+                    .then((response) => {
+                        // 성공 메시지 표시
+                        console.log(response);
+
+                        alert(response.data.message || "해당 퀘스트가 완료되었습니다.");
+
+                        // 모달 닫기
+                        this.closeDetailModal();
+
+                        // 퀘스트 목록 새로고침
+                        this.fetchQuests();
+                    })
+                    .catch((error) => {
+                        console.error("퀘스트 완료 중 오류가 발생했습니다:", error);
+
+                        let errorMessage = "퀘스트 완료 중 오류가 발생했습니다.";
+
+                        if (error.response) {
+                            if (error.response.status === 401) {
+                                errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                            } else if (error.response.status === 403) {
+                                errorMessage = "완료 권한이 없습니다.";
+                            } else if (error.response.status === 404) {
+                                errorMessage = "해당 퀘스트를 찾을 수 없습니다.";
+                            } else if (error.response.data && error.response.data.message) {
+                                errorMessage = error.response.data.message;
+                            }
+                        } else if (error.request) {
+                            errorMessage = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                        }
+
+                        alert(errorMessage);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+
+                this.closeDetailModal();
+            } catch (error) {
+                console.error("퀘스트 완료 처리 실패:", error);
+            }
+        },
+        // 위치 정보 가져오기를 Promise로 변환
+        getUserLocation() {
+            return new Promise((resolve, reject) => {
+                if (!("geolocation" in navigator)) {
+                    reject(new Error("Geolocation API가 지원되지 않습니다."));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => resolve(position),
+                    (error) => reject(error),
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000,
+                    }
+                );
+            });
         },
     },
 };

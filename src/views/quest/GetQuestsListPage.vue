@@ -218,8 +218,8 @@ export default {
                     console.log(questsData);
 
                     // 퀘스트 데이터 변환 (백엔드 DTO 형식에 맞게 조정)
-                    this.quests = questsData.map((quest, index) => ({
-                        id: quest.id || `quest-${paginationData.currentPage}-${index}`,
+                    this.quests = questsData.map((quest) => ({
+                        questId: quest.questId,
                         title: quest.questTitle,
                         attractionImage: quest.attractionImage,
                         attractionTitle: quest.attractionTitle,
@@ -227,6 +227,8 @@ export default {
                         sidoName: quest.attractionAddress,
                         difficulty: quest.questDifficulty,
                         description: quest.questDescription,
+                        attractionLatitude: quest.attractionLatitude,
+                        attractionLongitude: quest.attractionLongitude,
                     }));
 
                     // 페이지네이션 정보 업데이트
@@ -236,9 +238,6 @@ export default {
                         totalPages: paginationData.totalPages || 1,
                         pageSize: paginationData.pageSize || 6,
                     };
-
-                    // 필터링 적용
-                    // this.applyFilter();
                 })
                 .catch((error) => {
                     console.error("퀘스트 데이터를 불러오는 중 오류가 발생했습니다:", error);
@@ -248,7 +247,7 @@ export default {
                         if (error.response.status === 401) {
                             this.error = "인증이 만료되었습니다. 다시 로그인해주세요.";
                             // 로그인 페이지로 리다이렉트 (필요시)
-                            // this.$router.push('/login');
+                            this.$router.push("/login");
                         } else {
                             this.error = `오류가 발생했습니다: ${error.response.data.message || "알 수 없는 오류"}`;
                         }
@@ -283,10 +282,61 @@ export default {
         },
 
         startQuest() {
-            console.log("퀘스트 시작:", this.selectedQuest);
-            // 실제 구현 시에는 퀘스트 시작 페이지로 이동하거나
-            // 필요한 API 호출 등을 수행할 수 있습니다.
-            // this.$router.push({ name: 'quest-play', params: { id: this.selectedQuest.id } });
+            if (!confirm(`"${this.selectedQuest.title}" 퀘스트를 시작하시겠습니까?`)) {
+                return;
+            }
+
+            const token = authStore.accessToken;
+
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            axios
+                .patch(
+                    `${API_URL}/quests/${this.selectedQuest.questId}/start`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                )
+                .then((response) => {
+                    // 성공 메시지 표시
+                    alert(response.data.message || "해당 퀘스트가 시작되었습니다.");
+
+                    // 모달 닫기
+                    this.closeDetailModal();
+
+                    // 퀘스트 목록 새로고침
+                    this.fetchQuests();
+                })
+                .catch((error) => {
+                    console.error("퀘스트 시작 중 오류가 발생했습니다:", error);
+
+                    let errorMessage = "퀘스트 시작 중 오류가 발생했습니다.";
+
+                    if (error.response) {
+                        if (error.response.status === 401) {
+                            errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                        } else if (error.response.status === 403) {
+                            errorMessage = "포기 권한이 없습니다.";
+                        } else if (error.response.status === 404) {
+                            errorMessage = "해당 퀘스트를 찾을 수 없습니다.";
+                        } else if (error.response.data && error.response.data.message) {
+                            errorMessage = error.response.data.message;
+                        }
+                    } else if (error.request) {
+                        errorMessage = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+                    }
+
+                    alert(errorMessage);
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
 
             this.closeDetailModal();
         },
