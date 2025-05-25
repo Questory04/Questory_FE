@@ -56,7 +56,7 @@ const posts = ref([
 ])
 
 const editPost = (id) => {
-  router.push(`/board/edit/${id}`)
+  router.push(`/boards/edit/${id}`)
 }
 
 const deletePost = (id) => {
