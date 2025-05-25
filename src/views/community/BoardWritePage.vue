@@ -33,12 +33,29 @@ const form = ref({
   content: ''
 })
 
-const handleSubmit = () => {
-  console.log('작성된 게시글:', form.value)
-  // TODO: axios.post('/posts', form.value)
-  alert('게시글이 등록되었습니다!')
-  router.push('/board')
+import axios from 'axios'
+
+const handleSubmit = async () => {
+  try {
+    const response = await axios.post(
+      'http://localhost:8080/posts', 
+      form.value,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`, // JWT 토큰
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    alert(response.data.message) // "글이 등록되었습니다."
+    router.push('/boards') // 작성 완료 후 목록으로 이동
+  } catch (error) {
+    console.error('게시글 작성 실패:', error)
+    alert('게시글 작성에 실패했습니다.')
+  }
 }
+
 </script>
 
 <style scoped>
