@@ -165,7 +165,7 @@
                 </div>
 
                 <!-- DAY 탭 추가 버튼 -->
-                <button @click="addDay" class="add-day-btn">+ DAY{{ days.length + 1 }} 추가</button>
+                <!-- <button @click="addDay" class="add-day-btn">+ DAY{{ days.length + 1 }} 추가</button> -->
 
                 <!-- DAY 탭들 -->
                 <div class="day-tabs">
@@ -205,8 +205,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 import { KakaoMap, KakaoMapMarker } from "vue3-kakao-maps";
+
+const route = useRoute();
 
 // 카카오 API 설정 - 환경변수에서 가져오기
 const KAKAO_REST_API_KEY = process.env.VUE_APP_KAKAO_REST_API_KEY;
@@ -259,14 +262,48 @@ const attractions = ref([
     },
 ]);
 
-const days = ref([1, 2, 3, 4]);
-const activeDay = ref(1);
-const dayPlans = reactive({
-    1: [],
-    2: [],
-    3: [],
-    4: [],
+// 기본값으로 초기화
+
+const planData = ref({
+    planId: null,
+    totalDays: 1, // 기본값 설정
 });
+
+const days = ref([1]);
+const activeDay = ref(1);
+const dayPlans = reactive({ 1: [] });
+
+// planData가 설정되면 동적으로 업데이트
+watch(
+    () => planData.value?.totalDays, // safe navigation operator 사용
+    (newTotalDays) => {
+        if (newTotalDays && newTotalDays > 0) {
+            console.log("총 일수 변경:", newTotalDays);
+            console.log(planData.value.totalDays);
+
+            // days 배열 업데이트
+            days.value = Array.from({ length: newTotalDays }, (_, i) => i + 1);
+
+            // dayPlans 객체 초기화
+            Object.keys(dayPlans).forEach((key) => delete dayPlans[key]);
+            for (let i = 1; i <= newTotalDays; i++) {
+                dayPlans[i] = [];
+            }
+
+            // activeDay가 범위를 벗어나면 1로 설정
+            if (activeDay.value > newTotalDays) {
+                activeDay.value = 1;
+            }
+
+            console.log(`${newTotalDays}일 계획으로 초기화됨`);
+        }
+    },
+    { immediate: true } // 즉시 실행
+);
+
+// const days = ref([...Array(planData.value.totalDays)].map((_, i) => i + 1));
+// const activeDay = ref(1);
+// const dayPlans = reactive(Object.fromEntries(Array.from({ length: planData.value.totalDays }, (_, i) => [i + 1, []])));
 
 const selectedAttraction = ref(null);
 const searchResults = ref([]); // 검색 결과 리스트
@@ -534,12 +571,12 @@ const clearMapResults = () => {
     console.log("지도의 검색 결과가 지워졌습니다.");
 };
 
-const addDay = () => {
-    const newDay = days.value.length + 1;
-    days.value.push(newDay);
-    dayPlans[newDay] = [];
-    console.log("새로운 DAY 추가:", newDay);
-};
+// const addDay = () => {
+//     const newDay = days.value.length + 1;
+//     days.value.push(newDay);
+//     dayPlans[newDay] = [];
+//     console.log("새로운 DAY 추가:", newDay);
+// };
 
 const setActiveDay = (day) => {
     activeDay.value = day;
@@ -554,7 +591,11 @@ const removePlanItem = (day, index) => {
 const completePlan = () => {
     console.log("최종 여행 계획:", dayPlans);
     alert("여행 계획이 완료되었습니다!");
+
     // 실제로는 서버에 데이터를 저장하거나 다른 페이지로 이동
+    // axios.post(routes에 저장)
+    // axios.post(plans-routes에 저장)
+    // 내 계획 페이지로 이동
 };
 
 const cancelPlan = () => {
@@ -569,6 +610,13 @@ const cancelPlan = () => {
 
 // 컴포넌트 마운트 시
 onMounted(() => {
+    planData.value = {
+        planId: route.params.planId,
+        totalDays: parseInt(route.query.totalDays),
+    };
+    console.log("planDATA");
+    console.log(planData.value);
+
     console.log("여행 계획 생성 컴포넌트 로드됨");
 
     // 카카오 API 키 확인
@@ -1087,7 +1135,7 @@ onMounted(() => {
 }
 
 /* DAY 추가 버튼 */
-.add-day-btn {
+/* .add-day-btn {
     background-color: #e3f2fd;
     color: #1976d2;
     border: 0.125rem dashed #90caf9;
@@ -1102,7 +1150,7 @@ onMounted(() => {
 .add-day-btn:hover {
     background-color: #bbdefb;
     border-color: #64b5f6;
-}
+} */
 
 /* DAY 탭들 */
 .day-tabs {
@@ -1692,9 +1740,9 @@ onMounted(() => {
         border-width: 0.031rem;
     }
 
-    .add-day-btn {
+    /* .add-day-btn {
         border-width: 0.063rem;
-    }
+    } */
 
     .spinner {
         border-width: 0.094rem;

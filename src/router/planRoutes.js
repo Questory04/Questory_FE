@@ -20,7 +20,7 @@ export default [
     },
     {
         // path: '/plans/:planId/edit',
-        path: "/plans/:planId/edit4",
+        path: "/plans/:planId/edit2",
         name: "PlanRouteEditor3",
         component: () => import("@/views/plan/PlanRouteEditorTest.vue"),
         props: true,
