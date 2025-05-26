@@ -29,4 +29,10 @@ export default [
         component: () => import("@/views/plan/GetTotalPlansListPage.vue"),
         props: true,
     },
+    {
+        path: "/plans/:planId/copy",
+        name: "TotalPlanDetail",
+        component: () => import("@/views/plan/GetSharePlanDetailPage.vue"),
+        props: true,
+    },
 ];

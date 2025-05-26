@@ -239,8 +239,7 @@ const goToCreatePlan = () => {
 };
 
 const goToPlanDetail = (planId) => {
-    // router.push(`/plans/${planId}`);
-    router.push(`/plans/all/${planId}`);
+    router.push(`/plans/${planId}/copy`);
 };
 
 const changePage = (page) => {
