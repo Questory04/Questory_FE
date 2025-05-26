@@ -17,7 +17,9 @@
           <tr v-for="(post, index) in posts" :key="post.postId">
             <td>{{ posts.length - index }}</td>
             <td class="title-cell">
-              <span class="title-text">{{ post.title }}</span>
+              <span class="title-text" @click="goToDetail(post.postId)">
+                {{ post.title }}
+              </span>
             </td>
             <td>{{ post.createdAt }}</td>
             <td class="action-cell">
@@ -65,6 +67,10 @@ const fetchMyPosts = async () => {
 onMounted(() => {
   fetchMyPosts()
 })
+
+const goToDetail = (postId) => {
+  router.push(`/boards/${postId}`)
+}
 
 const editPost = async (postId, title, content) => {
   try {
@@ -141,6 +147,7 @@ const deletePost = async (id) => {
 .title-cell .title-text {
   font-weight: 500;
   color: #333;
+  cursor: pointer;
 }
 
 .action-cell {
