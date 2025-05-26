@@ -68,7 +68,7 @@ onMounted(() => {
 
 const editPost = async (postId, title, content) => {
   try {
-    const response = await axios.patch('http://localhost:8080/posts', {
+    await axios.patch('http://localhost:8080/posts', {
       postId,
       title,
       content
@@ -80,7 +80,6 @@ const editPost = async (postId, title, content) => {
       }
     })
 
-    alert(response.data.message) // "게시글이 수정되었습니다."
     router.push(`/boards/edit/${postId}`)
   } catch (error) {
     console.error('게시글 수정 실패:', error)
