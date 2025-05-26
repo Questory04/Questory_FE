@@ -16,8 +16,8 @@
                         <a href="/plans" class="nav-item">여행</a>
                         <div class="dropdown-content">
                             <a href="/plans/create" class="dropdown-item">계획 생성</a>
-                            <a href="/quests/me/active" class="dropdown-item">내 계획</a>
-                            <a href="/quests/me/created" class="dropdown-item">공유 받은 계획</a>
+                            <a href="/plans" class="dropdown-item">내 계획</a>
+                            <a href="#" class="dropdown-item">공유 받은 계획</a>
                         </div>
                     </div>
                     <a href="/boards" class="nav-item">커뮤니티</a>
