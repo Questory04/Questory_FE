@@ -1,85 +1,104 @@
 <template>
-    <BasicTitle msg="🏆 랭킹" color="black"></BasicTitle>
-    <div class="ranking-box">
-        <ol class="ranking-list">
-            <li v-for="(user, index) in rankingData" :key="index">
-                <span class="rank">({{ index + 1 }})</span>
-                <span class="name">{{ user.name }}</span>
-                <span class="exp">{{ user.exp }} EXP</span>
-            </li>
-        </ol>
+  <div class="ranking-container">
+    <div class="header">
+      <h3>🏆 랭킹</h3>
+      <router-link to="/ranking" class="more-link">더보기</router-link>
     </div>
+    <ul class="ranking-list">
+      <li v-for="(user, index) in topRankings" :key="user.email" class="ranking-item">
+        <span class="rank-badge">{{ index + 1 }}위</span>
+        <span class="nickname">{{ user.nickname }}</span>
+        <span class="exp">{{ user.exp.toLocaleString() }} exp</span>
+      </li>
+    </ul>
+  </div>
 </template>
 
-<script>
-import BasicTitle from "../common/BasicTitle.vue";
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
-export default {
-    name: "RankingList",
-    components: {
-        BasicTitle,
-    },
-    data() {
-        return {
-            rankingData: [
-                { name: "이름1", exp: 123413 },
-                { name: "이름2", exp: 114567 },
-                { name: "이름3", exp: 112345 },
-                { name: "이름4", exp: 108000 },
-                { name: "이름5", exp: 107500 },
-                { name: "이름6", exp: 104300 },
-                { name: "이름7", exp: 102100 },
-                { name: "이름8", exp: 99999 },
-                { name: "이름9", exp: 98888 },
-                { name: "이름10", exp: 97000 },
-            ],
-        };
-    },
-};
+const topRankings = ref([])
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/ranking')
+    topRankings.value = response.data.slice(0, 10)
+  } catch (err) {
+    console.error('랭킹 불러오기 실패:', err)
+  }
+})
 </script>
 
 <style scoped>
-.ranking-box {
-    background: #f9f9f9;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    max-width: 300px;
+.ranking-container {
+  background-color: #fdfdfd;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  font-family: 'Pretendard', sans-serif;
 }
 
-.ranking-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #333;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.more-link {
+  font-size: 14px;
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.more-link:hover {
+  color: #3498db;
 }
 
 .ranking-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.ranking-list li {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 0.95rem;
-    border-bottom: 1px solid #e0e0e0;
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  transition: background-color 0.2s;
 }
 
-.rank {
-    font-weight: bold;
-    color: #444;
-    margin-right: 0.5rem;
+.ranking-item:hover {
+  background-color: #f0f8ff;
 }
 
-.name {
-    flex: 1;
-    text-align: left;
+.rank-badge {
+  font-weight: bold;
+  width: 48px;
+  text-align: left;
+  color: #ff9800;
+}
+
+.nickname {
+  flex-grow: 1;
+  text-align: left;
+  padding-left: 8px;
+  font-weight: 500;
+  color: #333;
 }
 
 .exp {
-    color: #888;
+  font-size: 14px;
+  color: #666;
 }
 </style>
