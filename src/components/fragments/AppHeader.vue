@@ -10,6 +10,7 @@
                             <a href="/quests" class="dropdown-item">전체 퀘스트</a>
                             <a href="/quests/me/active" class="dropdown-item">진행중인 퀘스트</a>
                             <a href="/quests/me/created" class="dropdown-item">내가 만든 퀘스트</a>
+                            <a href="/add-quest" class="dropdown-item">퀘스트 생성</a>
                         </div>
                     </div>
                     <div class="nav-dropdown">
