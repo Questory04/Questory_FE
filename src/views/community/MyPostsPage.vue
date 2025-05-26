@@ -14,15 +14,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(post, index) in posts" :key="post.id">
+          <tr v-for="(post, index) in posts" :key="post.postId">
             <td>{{ posts.length - index }}</td>
             <td class="title-cell">
               <span class="title-text">{{ post.title }}</span>
             </td>
             <td>{{ post.createdAt }}</td>
             <td class="action-cell">
-              <button class="edit-btn" @click="editPost(post.id)">✏ 수정</button>
-              <button class="delete-btn" @click="deletePost(post.id)">🗑 삭제</button>
+              <button class="edit-btn" @click="editPost(post.postId)">✏ 수정</button>
+              <button class="delete-btn" @click="deletePost(post.postId)">🗑 삭제</button>
             </td>
           </tr>
         </tbody>
@@ -66,16 +66,52 @@ onMounted(() => {
   fetchMyPosts()
 })
 
-const editPost = (id) => {
-  router.push(`/boards/edit/${id}`)
-}
+const editPost = async (postId, title, content) => {
+  try {
+    const response = await axios.patch('http://localhost:8080/posts', {
+      postId,
+      title,
+      content
+      // category 등 다른 값도 필요하다면 포함
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json'
+      }
+    })
 
-const deletePost = (id) => {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    posts.value = posts.value.filter(post => post.id !== id)
-    alert('삭제되었습니다.')
+    alert(response.data.message) // "게시글이 수정되었습니다."
+    router.push(`/boards/edit/${postId}`)
+  } catch (error) {
+    console.error('게시글 수정 실패:', error)
+    alert('게시글 수정에 실패했습니다.')
   }
 }
+
+
+const deletePost = async (id) => {
+  if (confirm('정말 삭제하시겠습니까?')) {
+    try {
+      const response = await axios.delete('http://localhost:8080/posts', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          postId: id
+        }
+      })
+
+      console.log('삭제 응답:', response.data)
+      alert(response.data?.message || '게시글이 삭제되었습니다.')
+      await fetchMyPosts()
+    } catch (error) {
+      console.error('게시글 삭제 실패:', error)
+      alert('게시글 삭제에 실패했습니다.')
+    }
+  }
+}
+
 </script>
 
 <style scoped>
