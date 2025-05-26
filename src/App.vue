@@ -2,20 +2,20 @@
     <v-app>
         <AppHeader />
         <router-view />
+        <ChatToggleButton @toggle="isChatOpen = !isChatOpen" />
+        <ChatBot v-if="isChatOpen" @close="isChatOpen = false" />
         <AppFooter />
     </v-app>
 </template>
 
-<script>
-import AppHeader from "@/components/fragments/AppHeader.vue";
-import AppFooter from "@/components/fragments/AppFooter.vue";
+<script setup>
+import { ref } from 'vue'
+import AppHeader from '@/components/fragments/AppHeader.vue'
+import AppFooter from '@/components/fragments/AppFooter.vue'
+import ChatBot from '@/components/chatbot/ChatBot.vue'
+import ChatToggleButton from '@/components/chatbot/ChatToggleButton.vue'
 
-export default {
-    components: {
-        AppHeader,
-        AppFooter,
-    },
-};
+const isChatOpen = ref(false)
 </script>
 
 <style>
