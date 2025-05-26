@@ -2,11 +2,7 @@
   <div class="detail-container">
     <!-- ✅ 공통 제목 컴포넌트 적용 -->
     <PageTitle :title="post.title" />
-
-    <div class="post-meta">
-      <span>작성일: {{ post.createdAt }}</span>
-      <span>조회수: {{ post.views }}</span>
-    </div>
+    <span>작성일: {{ post.createdAt }}</span>
 
     <div class="post-content">
       <p v-for="(line, index) in formattedContent" :key="index">
@@ -23,6 +19,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import PageTitle from '@/components/common/PageTitle.vue'
 
 const route = useRoute()
@@ -37,21 +34,20 @@ const post = ref({
   views: 0
 })
 
-onMounted(() => {
-  // TODO: API 연동으로 대체 예정
-  post.value = {
-    id: noticeId,
-    title: '서비스 점검 안내 (5/30)',
-    content: '안녕하세요, 사용자 여러분.\n5월 30일(목) 오전 2시부터 4시까지 서비스 점검이 예정되어 있습니다.\n이용에 참고 부탁드립니다.',
-    createdAt: '2025-05-25',
-    views: 342
+onMounted(async () => {
+  try {
+    const response = await axios.get(`http://localhost:8080/posts/${noticeId}`)
+    post.value = response.data
+  } catch (err) {
+    console.error('공지 상세 조회 실패:', err)
+    alert('공지글을 불러오는 데 실패했습니다.')
   }
 })
 
 const formattedContent = computed(() => post.value.content.split('\n'))
 
 const goBack = () => {
-  router.push('/notice')
+  router.push('/boards/notice')
 }
 </script>
 
