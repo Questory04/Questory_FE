@@ -5,24 +5,9 @@ export default [
         component: () => import("@/views/plan/PlanCreatePage.vue"),
     },
     {
-        // path: '/plans/:planId/edit',
-        path: "/plans/edit",
+        path: "/plans/:planId/edit",
         name: "PlanRouteEditor",
         component: () => import("@/views/plan/PlanRouteEditor.vue"),
-        props: true,
-    },
-    {
-        // path: '/plans/:planId/edit',
-        path: "/plans/edit2",
-        name: "PlanRouteEditor2",
-        component: () => import("@/views/plan/PlanRouteEditorTest.vue"),
-        props: true,
-    },
-    {
-        // path: '/plans/:planId/edit',
-        path: "/plans/:planId/edit2",
-        name: "PlanRouteEditor3",
-        component: () => import("@/views/plan/PlanRouteEditorTest.vue"),
         props: true,
     },
 ];

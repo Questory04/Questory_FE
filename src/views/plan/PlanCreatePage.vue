@@ -49,9 +49,6 @@ const plan = reactive({
     routes: [], // 임시로 비워두고, 추후 관광지 추가 시 동적으로 삽입
 });
 
-// 예시: route 추가 예시
-// plan.routes.push({ attractionId: 1, day: 1, sequence: 1 })
-
 const handleSubmit = async () => {
     try {
         const response = await axios.post(
@@ -70,18 +67,9 @@ const handleSubmit = async () => {
             }
         );
 
-        // console.log(response.data.message);
-        console.log(response);
-        console.log(response.data.plan);
         const planId = response.data.plan.planId;
-        // router.push("/plans/edit2"); // 필요 시 생성된 planId 사용
-        // router.push(`/plans/${planId}/edit2`, {
-        //     query: {
-        //         totalDays: response.data.plan.days,
-        //     },
-        // });
         router.push({
-            path: `/plans/${planId}/edit2`,
+            path: `/plans/${planId}/edit`,
             query: {
                 totalDays: response.data.plan.days, // 또는 계산된 일수
             },
