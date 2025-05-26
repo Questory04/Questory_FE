@@ -18,7 +18,7 @@
                             <a href="/plans/create" class="dropdown-item">계획 생성</a>
                             <a href="plans/all" class="dropdown-item">전체 계획</a>
                             <a href="/plans" class="dropdown-item">내 계획</a>
-                            <a href="#" class="dropdown-item">공유 받은 계획</a>
+                            <a href="/plans/copy" class="dropdown-item">공유 받은 계획</a>
                         </div>
                     </div>
                     <div class="nav-dropdown">

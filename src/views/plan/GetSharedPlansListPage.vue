@@ -4,17 +4,12 @@
         <main class="main-content">
             <!-- 페이지 타이틀 -->
             <div class="page-header">
-                <h2 class="page-title">여행 계획 리스트</h2>
+                <h2 class="page-title">공유 받은 여행 계획</h2>
                 <div class="title-underline"></div>
             </div>
 
             <!-- 액션 버튼 -->
             <div class="action-section">
-                <!-- <button @click="goToCreatePlan" class="create-plan-btn">
-                    <span class="btn-icon">+</span>
-                    새 여행 계획 만들기
-                </button> -->
-
                 <select v-model="sortBy" class="sort-select">
                     <option value="recent">최신순</option>
                     <option value="startDate">출발일순</option>
@@ -48,11 +43,18 @@
                         <!-- 계획 정보 -->
                         <div class="card-content">
                             <div class="plan-header-info">
-                                <h3 class="plan-title">{{ plan.planTitle }}</h3>
+                                <h3 class="plan-title">{{ plan.planTitle || "제목 없음" }}</h3>
                                 <div class="plan-dates">
                                     <span class="date-badge">{{ formatDateRange(plan.startDate, plan.endDate) }}</span>
                                     <span class="duration-badge">{{ plan.duration }}일</span>
                                 </div>
+                            </div>
+
+                            <!-- 상태 표시 -->
+                            <div class="plan-status-section">
+                                <span :class="['plan-status', getStatusClass(plan.status)]">
+                                    {{ getStatusText(plan.status) }}
+                                </span>
                             </div>
 
                             <div class="plan-meta">
@@ -62,16 +64,18 @@
                                 </div>
                             </div>
 
-                            <div v-if="plan.description" class="plan-description">
+                            <div v-if="plan.planDescription" class="plan-description">
                                 {{ truncateText(plan.planDescription, 80) }}
                             </div>
 
                             <!-- 진행률 -->
-                            <div class="progress-label">계획 진행률</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" :style="{ width: `${plan.completionRate}%` }"></div>
+                            <div class="progress-section">
+                                <div class="progress-label">계획 진행률</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: `${plan.completionRate}%` }"></div>
+                                </div>
+                                <div class="progress-text">{{ plan.completionRate }}%</div>
                             </div>
-                            <div class="progress-text">{{ plan.completionRate }}%</div>
                         </div>
 
                         <!-- 카드 푸터 -->
@@ -87,12 +91,11 @@
                 <!-- 빈 상태 -->
                 <div v-else class="empty-state">
                     <div class="empty-illustration">
-                        <div class="empty-icon">✈️</div>
+                        <div class="empty-icon">📋</div>
                         <div class="empty-bg"></div>
                     </div>
-                    <h3>아직 여행 계획이 없어요</h3>
-                    <p>첫 번째 여행 계획을 세워보세요!</p>
-                    <button @click="goToCreatePlan" class="create-first-plan-btn">여행 계획 만들기</button>
+                    <h3>공유받은 여행 계획이 없어요</h3>
+                    <p>다른 사람이 공유한 여행 계획을 저장해보세요!</p>
                 </div>
 
                 <!-- 페이지네이션 -->
@@ -143,7 +146,6 @@ const plans = ref([]);
 const searchQuery = ref("");
 const statusFilter = ref("");
 const sortBy = ref("recent");
-const activeMenu = ref(null);
 const currentPage = ref(1);
 const plansPerPage = 9;
 
@@ -155,7 +157,9 @@ const filteredPlans = computed(() => {
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
         filtered = filtered.filter(
-            (plan) => plan.title.toLowerCase().includes(query) || plan.destination.toLowerCase().includes(query)
+            (plan) =>
+                (plan.planTitle && plan.planTitle.toLowerCase().includes(query)) ||
+                (plan.planDescription && plan.planDescription.toLowerCase().includes(query))
         );
     }
 
@@ -170,9 +174,10 @@ const filteredPlans = computed(() => {
             case "recent":
                 return new Date(b.createdAt) - new Date(a.createdAt);
             case "startDate":
+                if (!a.startDate && !b.startDate) return 0;
+                if (!a.startDate) return 1;
+                if (!b.startDate) return -1;
                 return new Date(a.startDate) - new Date(b.startDate);
-            case "title":
-                return a.title.localeCompare(b.title);
             default:
                 return 0;
         }
@@ -211,21 +216,22 @@ const loadTravelPlans = async () => {
             throw new Error("로그인이 필요합니다.");
         }
 
-        const response = await axios.get("http://localhost:8080/plans/all", {
+        // 공유받은 계획 목록 API 호출
+        const response = await axios.get("http://localhost:8080/plans/shared", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
 
-        // 샘플 데이터 (실제 API 응답에 맞게 수정 필요)
-        plans.value = response.data;
-
-        console.log("여행 계획 목록 로드 완료:", plans.value);
+        plans.value = response.data || [];
+        console.log("공유받은 여행 계획 목록 로드 완료:", plans.value);
     } catch (err) {
         console.error("계획 로드 중 오류:", err);
         if (err.response?.status === 401) {
             error.value = "로그인이 만료되었습니다. 다시 로그인해주세요.";
             setTimeout(() => router.push("/login"), 2000);
+        } else if (err.response?.status === 404) {
+            error.value = "공유받은 계획을 찾을 수 없습니다.";
         } else {
             error.value = err.response?.data?.message || "계획을 불러오는 중 오류가 발생했습니다.";
         }
@@ -234,12 +240,8 @@ const loadTravelPlans = async () => {
     }
 };
 
-const goToCreatePlan = () => {
-    router.push("/plans/create");
-};
-
 const goToPlanDetail = (planId) => {
-    router.push(`/plans/${planId}/copy`);
+    router.push(`/plans/${planId}/shared`);
 };
 
 const changePage = (page) => {
@@ -258,7 +260,7 @@ const formatDate = (dateString) => {
 };
 
 const formatDateRange = (startDate, endDate) => {
-    if (!startDate || !endDate) return "";
+    if (!startDate || !endDate) return "날짜 미정";
     const start = new Date(startDate).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
     const end = new Date(endDate).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
     return `${start} ~ ${end}`;
@@ -277,19 +279,44 @@ const truncateText = (text, maxLength) => {
     return text.length <= maxLength ? text : text.substring(0, maxLength) + "...";
 };
 
+// 상태 관련 메서드
+const getStatusClass = (status) => {
+    switch (status) {
+        case "DRAFT":
+            return "status-draft";
+        case "STARTED":
+            return "status-started";
+        case "SHARED":
+            return "status-shared";
+        case "COMPLETED":
+            return "status-completed";
+        default:
+            return "status-draft";
+    }
+};
+
+const getStatusText = (status) => {
+    switch (status) {
+        case "DRAFT":
+            return "계획중";
+        case "STARTED":
+            return "진행중";
+        case "SHARED":
+            return "공유됨";
+        case "COMPLETED":
+            return "완료";
+        default:
+            return "계획중";
+    }
+};
+
 // 이벤트 리스너
 watch([searchQuery, statusFilter], () => {
     currentPage.value = 1;
 });
 
-// 외부 클릭 시 메뉴 닫기
-const handleClickOutside = () => {
-    activeMenu.value = null;
-};
-
 onMounted(() => {
     loadTravelPlans();
-    document.addEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -331,32 +358,6 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 2rem;
-}
-
-.create-plan-btn {
-    background-color: #6fa8dc;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-    margin-right: 1rem;
-}
-
-.create-plan-btn:hover {
-    background-color: #5a96d1;
-    transform: translateY(-1px);
-}
-
-.btn-icon {
-    font-size: 1.2rem;
-    font-weight: bold;
 }
 
 .sort-select {
@@ -435,83 +436,6 @@ onMounted(() => {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.plan-status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.status-planning {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.status-confirmed {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
-
-.status-completed {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.card-menu {
-    position: relative;
-}
-
-.menu-btn {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    color: #666;
-}
-
-.menu-dropdown {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    min-width: 100px;
-}
-
-.menu-dropdown button {
-    display: block;
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease;
-}
-
-.menu-dropdown button:hover {
-    background-color: #f8f9fa;
-}
-
-.menu-dropdown .delete-btn:hover {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
 .card-content {
     padding: 1.25rem;
 }
@@ -531,6 +455,7 @@ onMounted(() => {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .date-badge {
@@ -551,18 +476,43 @@ onMounted(() => {
     font-weight: 500;
 }
 
-.plan-destination {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+/* 상태 섹션 */
+.plan-status-section {
     margin-bottom: 1rem;
-    color: #666;
-    font-size: 0.95rem;
+}
+
+.plan-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-draft {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-started {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-shared {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background-color: #e2e3e5;
+    color: #383d41;
 }
 
 .plan-meta {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 1rem;
     gap: 0.5rem;
 }
@@ -677,23 +627,6 @@ onMounted(() => {
     margin-bottom: 2rem;
 }
 
-.create-first-plan-btn {
-    background-color: #6fa8dc;
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.create-first-plan-btn:hover {
-    background-color: #5a96d1;
-    transform: translateY(-2px);
-}
-
 /* 페이지네이션 */
 .pagination-section {
     display: flex;
@@ -757,10 +690,6 @@ onMounted(() => {
 
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
-    .nav-content {
-        padding: 0 1rem;
-    }
-
     .main-content {
         padding: 1.5rem;
     }
@@ -772,26 +701,6 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-    .nav-header {
-        padding: 0 1rem;
-    }
-
-    .nav-content {
-        flex-direction: column;
-        height: auto;
-        padding: 1rem 0;
-        gap: 1rem;
-    }
-
-    .nav-menu {
-        gap: 1.5rem;
-        order: 2;
-    }
-
-    .nav-actions {
-        order: 3;
-    }
-
     .main-content {
         padding: 1rem;
     }
@@ -832,26 +741,11 @@ onMounted(() => {
 }
 
 @media (max-width: 480px) {
-    .nav-menu {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
-    }
-
-    .nav-item {
-        font-size: 0.9rem;
-    }
-
     .page-title {
         font-size: 1.25rem;
     }
 
     .action-section {
-        justify-content: center;
-    }
-
-    .create-plan-btn {
-        width: 100%;
         justify-content: center;
     }
 
@@ -861,72 +755,12 @@ onMounted(() => {
         gap: 0.5rem;
     }
 
-    .card-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-    }
-
-    .card-menu {
-        align-self: flex-end;
-    }
-
     .empty-state {
         padding: 2rem 1rem;
     }
 
     .empty-icon {
         font-size: 3rem;
-    }
-
-    .create-first-plan-btn {
-        width: 100%;
-        padding: 1rem;
-    }
-}
-
-/* 접근성 향상 */
-.plan-card:focus {
-    outline: 2px solid #6fa8dc;
-    outline-offset: 2px;
-}
-
-button:focus {
-    outline: 2px solid #6fa8dc;
-    outline-offset: 1px;
-}
-
-/* 다크 모드 지원 */
-@media (prefers-color-scheme: dark) {
-    .travel-plans-container {
-        background-color: #121212;
-        color: #e0e0e0;
-    }
-
-    .nav-header {
-        background-color: #1e1e1e;
-        border-bottom-color: #333;
-    }
-
-    .plan-card {
-        background-color: #1e1e1e;
-        border-color: #333;
-    }
-
-    .card-header,
-    .card-footer {
-        background-color: #2d2d2d;
-    }
-
-    .sort-select {
-        background-color: #1e1e1e;
-        color: #e0e0e0;
-        border-color: #333;
-    }
-
-    .menu-dropdown {
-        background-color: #1e1e1e;
-        border-color: #333;
     }
 }
 
@@ -960,69 +794,5 @@ button:focus {
 }
 .plan-card:nth-child(6) {
     animation-delay: 0.5s;
-}
-
-/* 호버 효과 개선 */
-.create-plan-btn:active {
-    transform: translateY(0);
-}
-
-.plan-card:active {
-    transform: translateY(-2px);
-}
-
-/* 스크롤바 스타일링 */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-
-/* 로딩 상태 개선 */
-.loading-section p {
-    margin-top: 1rem;
-    font-size: 1rem;
-}
-
-/* 상태 배지 개선 */
-.plan-status {
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* 카드 그림자 효과 */
-.plan-card {
-    position: relative;
-    overflow: visible;
-}
-
-.plan-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(111, 168, 220, 0.1) 0%, rgba(90, 150, 209, 0.1) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 12px;
-    z-index: -1;
-}
-
-.plan-card:hover::before {
-    opacity: 1;
 }
 </style>
