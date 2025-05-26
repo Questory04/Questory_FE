@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import authRoutes from "./authRoutes";
+import boardRoutes from "./boardRoutes";
 import mainRoutes from "./mainRoutes";
 import planRoutes from "./planRoutes";
 import stampRoutes from "./stampRoutes";
@@ -9,6 +10,7 @@ import friendRoutes from "./friendRoutes";
 
 const routes = [
     ...authRoutes,
+    ...boardRoutes,
     ...mainRoutes,
     ...planRoutes,
     ...stampRoutes,

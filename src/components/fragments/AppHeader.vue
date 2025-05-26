@@ -20,7 +20,14 @@
                             <a href="#" class="dropdown-item">공유 받은 계획</a>
                         </div>
                     </div>
-                    <a href="/boards" class="nav-item">커뮤니티</a>
+                    <div class="nav-dropdown">
+                        <a href="/boards" class="nav-item">커뮤니티</a>
+                        <div class="dropdown-content">
+                            <a href="/boards/notice" class="dropdown-item">공지사항</a>
+                            <a href="/boards" class="dropdown-item">전체 글</a>
+                            <a href="/boards/me" class="dropdown-item">내가 작성한 글</a>
+                        </div>
+                    </div>
                     <a href="/friends" class="nav-item">친구</a>
                     <a href="/stamps" class="nav-item">스탬프</a>
                 </nav>
