@@ -31,7 +31,7 @@ export default [
     },
     {
         path: "/plans/:planId/copy",
-        name: "TotalPlanDetail",
+        name: "getSharePlanDetail",
         component: () => import("@/views/plan/GetSharePlanDetailPage.vue"),
         props: true,
     },
