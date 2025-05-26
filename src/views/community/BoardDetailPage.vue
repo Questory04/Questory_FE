@@ -5,7 +5,6 @@
 
     <div class="post-meta">
       <span>작성일: {{ post.createdAt }}</span>
-      <span>조회수: {{ post.views }}</span>
     </div>
 
     <div class="post-content">
@@ -23,6 +22,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import PageTitle from '@/components/common/PageTitle.vue'
 
 const route = useRoute()
@@ -38,21 +38,20 @@ const post = ref({
   views: 0
 })
 
-onMounted(() => {
-  // TODO: axios.get(`/posts/${postId}`) 로 대체
-  post.value = {
-    id: postId,
-    title: '게시글 제목입니다',
-    content: '이곳에 본문 내용이 들어갑니다.\n줄바꿈도 표현됩니다.',
-    createdAt: '2025-05-25',
-    views: 32
+onMounted(async () => {
+  try {
+    const response = await axios.get(`http://localhost:8080/posts/${postId}`)
+    post.value = response.data
+  } catch (err) {
+    console.error('게시글 조회 실패:', err)
+    alert('게시글을 불러오는 데 실패했습니다.')
   }
 })
 
 const formattedContent = computed(() => post.value.content.split('\n'))
 
 const goBack = () => {
-  router.push('/board')
+  router.push('/boards')
 }
 </script>
 

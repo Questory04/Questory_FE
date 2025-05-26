@@ -17,20 +17,18 @@
             <th>제목</th>
             <th>글쓴이</th>
             <th>날짜</th>
-            <th>조회 수</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(post, index) in posts" :key="post.id">
             <td>{{ posts.length - index }}</td>
             <td class="title-cell">
-              <span class="title-text" @click="goToDetail(post.id)">
+              <span class="title-text" @click="goToDetail(post.postId)">
                 {{ post.title }}
               </span>
             </td>
-            <td>{{ post.author }}</td>
+            <td>{{ post.nickname }}</td>
             <td>{{ post.createdAt }}</td>
-            <td>{{ post.views }}</td>
           </tr>
         </tbody>
       </table>
@@ -38,9 +36,9 @@
 
     <!-- 페이지네이션 -->
     <div class="pagination">
-      <button>이전</button>
-      <button class="active">1</button>
-      <button>다음</button>
+      <button @click="goToPrevPage">이전</button>
+      <button class="active">{{ page + 1 }}</button>
+      <button @click="goToNextPage">다음</button>
     </div>
   </div>
 </template>
@@ -60,28 +58,46 @@ const goToDetail = (id) => {
   router.push(`/boards/${id}`)
 }
 
-const posts = ref([
-  {
-    id: 1,
-    category: '공지',
-    title: '게시판 기능 오픈 안내',
-    badge: 'NEW',
-    badgeClass: 'new',
-    author: '관리자',
-    createdAt: '2025-05-25',
-    views: 123
-  },
-  {
-    id: 2,
-    category: '자유',
-    title: '부산 맛집 추천해요',
-    badge: '',
-    badgeClass: '',
-    author: '홍길동',
-    createdAt: '2025-05-24',
-    views: 45
+const posts = ref([])
+
+import axios from 'axios'
+import { onMounted } from 'vue'
+
+const page = ref(0)
+const size = ref(10)
+const keyword = ref('') // 필요하면 검색어도 추가
+
+const fetchPosts = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/posts', {
+      params: {
+        page: page.value,
+        size: size.value,
+        keyword: keyword.value || undefined, // 비어있으면 보내지 않음
+      }
+    })
+    posts.value = response.data
+  } catch (err) {
+    console.error('게시글 불러오기 실패:', err)
   }
-])
+}
+
+const goToNextPage = () => {
+  page.value++
+  fetchPosts()
+}
+
+const goToPrevPage = () => {
+  if (page.value > 0) {
+    page.value--
+    fetchPosts()
+  }
+}
+
+onMounted(() => {
+  fetchPosts()
+})
+
 </script>
 
 <style scoped>

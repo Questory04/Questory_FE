@@ -11,21 +11,19 @@
             <th>제목</th>
             <th>작성자</th>
             <th>작성일</th>
-            <th>조회수</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(notice, index) in notices" :key="notice.id">
-            <td>{{ notices.length - index }}</td>
-            <td class="title-cell">
-              <span class="title-text" @click="goToDetail(notice.id)">
-                {{ notice.title }}
-              </span>
-            </td>
-            <td>{{ notice.author }}</td>
-            <td>{{ notice.createdAt }}</td>
-            <td>{{ notice.views }}</td>
-          </tr>
+          <tr v-for="(notice, index) in notices" :key="notice.postId">
+          <td>{{ notices.length - index }}</td>
+          <td class="title-cell">
+            <span class="title-text" @click="goToDetail(notice.postId)">
+              {{ notice.title }}
+            </span>
+          </td>
+          <td>{{ notice.nickname }}</td>
+          <td>{{ notice.createdAt }}</td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -39,33 +37,34 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import PageTitle from '@/components/common/PageTitle.vue'
 
 const router = useRouter()
 
-const goToDetail = (id) => {
-  router.push(`/boards/notice/${id}`)
+const notices = ref([])
+
+const fetchNotices = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/posts/notice')
+    notices.value = response.data
+  } catch (error) {
+    console.error('공지사항 조회 실패:', error)
+    alert('공지사항을 불러오는 데 실패했습니다.')
+  }
 }
 
-const notices = ref([
-  {
-    id: 1,
-    title: '서비스 점검 안내 (5/30)',
-    author: '운영자',
-    createdAt: '2025-05-25',
-    views: 123
-  },
-  {
-    id: 2,
-    title: '이벤트 당첨자 발표',
-    author: '운영자',
-    createdAt: '2025-05-20',
-    views: 98
-  }
-])
+const goToDetail = (postId) => {
+  router.push(`/boards/notice/${postId}`)
+}
+
+onMounted(() => {
+  fetchNotices()
+})
 </script>
+
 
 <style scoped>
 .board-container {

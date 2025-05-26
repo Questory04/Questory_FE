@@ -23,31 +23,53 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
 import PageTitle from '@/components/common/PageTitle.vue'
 
 const router = useRouter()
-// const route = useRoute()
-// const postId = route.params.id
+const route = useRoute()
+const postId = route.params.id
 
 const form = ref({
   title: '',
   content: ''
 })
 
-onMounted(() => {
-  // TODO: API 연동
-  form.value = {
-    title: '수정할 게시글 제목',
-    content: '수정할 게시글 내용입니다.'
+onMounted(async () => {
+  try {
+    const response = await axios.get(`http://localhost:8080/posts/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    })
+    form.value.title = response.data.title
+    form.value.content = response.data.content
+  } catch (error) {
+    console.error('게시글 불러오기 실패:', error)
+    alert('게시글 정보를 불러오는 데 실패했습니다.')
   }
 })
 
-const handleUpdate = () => {
-  console.log('수정된 게시글:', form.value)
-  // TODO: axios.put(`/posts/${postId}`, form.value)
-  alert('게시글이 수정되었습니다!')
-  router.push('/board')
+const handleUpdate = async () => {
+  try {
+    const response = await axios.patch('http://localhost:8080/posts', {
+      postId: postId,
+      title: form.value.title,
+      content: form.value.content
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    alert(response.data.message || '게시글이 수정되었습니다!')
+    router.push('/boards') // 게시판 목록으로 이동
+  } catch (error) {
+    console.error('게시글 수정 실패:', error)
+    alert('게시글 수정에 실패했습니다.')
+  }
 }
 </script>
 
