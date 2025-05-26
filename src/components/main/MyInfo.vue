@@ -1,7 +1,15 @@
 <template>
   <div>
     <BasicTitle msg="My" color="black" />
-    <aside class="my-info">
+
+    <!-- 로그인 안 된 경우 -->
+    <div v-if="!hasToken" class="login-prompt">
+      <p>로그인이 필요합니다.</p>
+      <button @click="goLogin">로그인하러 가기</button>
+    </div>
+
+    <!-- 로그인 된 경우 -->
+    <aside v-else class="my-info">
       <div class="profile-section">
         <div class="profile-image"></div>
         <div class="profile-text">
@@ -28,9 +36,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import BasicTitle from '../common/BasicTitle.vue'
 
+const router = useRouter()
+const hasToken = ref(false)
 const nickname = ref('')
 const title = ref('')
 const exp = ref(0)
@@ -46,15 +57,23 @@ const calculateLevelInfo = (exp) => {
   return { level, maxExp }
 }
 
+const goLogin = () => {
+  router.push('/login')
+}
+
 onMounted(async () => {
+  const token = localStorage.getItem('accessToken')
+  if (!token) return
+
+  hasToken.value = true
+
   try {
     const res = await axios.get('http://localhost:8080/me', {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        Authorization: `Bearer ${token}`
       }
     })
     const data = res.data
-    console.log('내 정보:', data)  // 응답 확인
 
     nickname.value = data.nickname ?? '닉네임 없음'
     title.value = data.title ?? '칭호 없음'
@@ -65,9 +84,9 @@ onMounted(async () => {
     maxExp.value = max
   } catch (err) {
     console.error('내 정보 조회 실패:', err)
+    hasToken.value = false
   }
 })
-
 </script>
 
 
@@ -157,5 +176,22 @@ onMounted(async () => {
 .alert h4 {
     font-weight: bold;
     margin-bottom: 4px;
+}
+
+.login-prompt {
+  text-align: center;
+  padding: 20px;
+  background-color: #f3f4f6;
+  border-radius: 10px;
+}
+
+.login-prompt button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #7db4d5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>
