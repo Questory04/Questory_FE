@@ -14,13 +14,13 @@ export default [
     {
         path: "/plans",
         name: "getPlansList",
-        component: () => import("@/views/plan/getPlansListPage.vue"),
+        component: () => import("@/views/plan/GetPlansListPage.vue"),
         props: true,
     },
     {
         path: "/plans/:planId",
         name: "getPlanDetail",
-        component: () => import("@/views/plan/getPlanDetailPage.vue"),
+        component: () => import("@/views/plan/GetPlanDetailPage.vue"),
         props: true,
     },
     {
