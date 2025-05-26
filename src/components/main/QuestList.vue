@@ -14,16 +14,16 @@
                 v-for="quest in recommendedQuests"
                 :key="quest.questId"
             >
-            <div class="card">
-                <img class="thumbnail" src="@/assets/images/street-bukchon.jpg" alt="썸네일" />
-                <h3>{{ quest.title }}</h3>
-                <p>{{ quest.difficulty }}</p>
-                <p>생성일: {{ quest.createdAt.slice(0, 10) }}</p>
-                <p>참여 인원: {{ quest.participantCount }}명</p>
-                <p>EXP +{{ quest.exp }} • 스탬프</p>
-                <button>시작하기</button>
-            </div>
-            </SwiperSlide>  
+                <div class="card">
+                    <img class="thumbnail" src="@/assets/images/street-bukchon.jpg" alt="썸네일" />
+                    <h3>{{ quest.title }}</h3>
+                    <p>{{ quest.difficulty }}</p>
+                    <p>생성일: {{ quest.createdAt.slice(0, 10) }}</p>
+                    <p>참여 인원: {{ quest.participantCount }}명</p>
+                    <p>EXP +{{ quest.exp }} • 스탬프</p>
+                    <button @click="handleStartClick(quest.questId)">시작하기</button>
+                </div>
+            </SwiperSlide>
         </Swiper>
     </section>
 </template>
@@ -31,10 +31,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router"; // 추가
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import BasicTitle from "../common/BasicTitle.vue";
 
+const router = useRouter();
 const recommendedQuests = ref([]);
 
 // API 호출 함수
@@ -47,10 +49,23 @@ const fetchRecommendedQuests = async () => {
     }
 };
 
+const handleStartClick = (questId) => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+        alert("로그인이 필요합니다.");
+        router.push("/login");
+        return;
+    }
+
+    // 👉 원하는 동작 수행: 예) 퀘스트 상세 페이지로 이동
+    router.push(`/quests/${questId}`);
+};
+
 onMounted(() => {
     fetchRecommendedQuests();
 });
 </script>
+
 
 <style scoped>
 .section {
