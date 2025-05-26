@@ -10,7 +10,6 @@
             <th>번호</th>
             <th>제목</th>
             <th>날짜</th>
-            <th>조회수</th>
             <th>관리</th>
           </tr>
         </thead>
@@ -21,7 +20,6 @@
               <span class="title-text">{{ post.title }}</span>
             </td>
             <td>{{ post.createdAt }}</td>
-            <td>{{ post.views }}</td>
             <td class="action-cell">
               <button class="edit-btn" @click="editPost(post.id)">✏ 수정</button>
               <button class="delete-btn" @click="deletePost(post.id)">🗑 삭제</button>
@@ -34,26 +32,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import PageTitle from '@/components/common/PageTitle.vue'
 
 const router = useRouter()
+const posts = ref([])
 
-const posts = ref([
-  {
-    id: 1,
-    title: '서울 여행 후기',
-    createdAt: '2025-05-24',
-    views: 30
-  },
-  {
-    id: 2,
-    title: 'Vue3 팁 정리',
-    createdAt: '2025-05-20',
-    views: 42
+const fetchMyPosts = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/posts/me', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      params: {
+        page: 0,
+        size: 10,
+        keyword: '' // 필요 시 검색어 전달
+      }
+    })
+
+    console.log('불러온 게시글:', response.data)
+    posts.value = response.data
+  } catch (error) {
+    console.error('내 게시글 조회 실패:', error)
+    alert('게시글을 불러오는 데 실패했습니다.')
   }
-])
+}
+
+// 컴포넌트 마운트 시 불러오기
+onMounted(() => {
+  fetchMyPosts()
+})
 
 const editPost = (id) => {
   router.push(`/boards/edit/${id}`)
