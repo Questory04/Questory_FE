@@ -35,4 +35,16 @@ export default [
         component: () => import("@/views/plan/GetSharePlanDetailPage.vue"),
         props: true,
     },
+    {
+        path: "/plans/copy",
+        name: "getSharedPlanList",
+        component: () => import("@/views/plan/GetSharedPlansListPage.vue"),
+        props: true,
+    },
+    {
+        path: "/plans/:planId/shared",
+        name: "getSharedPlanDetail",
+        component: () => import("@/views/plan/GetSharedPlanDetailPage.vue"),
+        props: true,
+    },
 ];
