@@ -10,35 +10,46 @@
                 1280: { slidesPerView: 4, spaceBetween: 45 },
             }"
         >
-            <SwiperSlide v-for="n in 5" :key="n">
-                <div class="card">
-                    <img class="thumbnail" src="@/assets/images/street-bukchon.jpg" alt="북촌 한옥마을" />
-                    <h3>북촌 한옥마을 탐방</h3>
-                    <p>쉬움</p>
-                    <p>예상 45분</p>
-                    <p>종로구 북촌로</p>
-                    <p>관광 + 문화</p>
-                    <p>EXP +50 • 스탬프</p>
-                    <button>시작하기</button>
-                </div>
-            </SwiperSlide>
+            <SwiperSlide
+                v-for="quest in recommendedQuests"
+                :key="quest.questId"
+            >
+            <div class="card">
+                <img class="thumbnail" src="@/assets/images/street-bukchon.jpg" alt="썸네일" />
+                <h3>{{ quest.title }}</h3>
+                <p>{{ quest.difficulty }}</p>
+                <p>생성일: {{ quest.createdAt.slice(0, 10) }}</p>
+                <p>참여 인원: {{ quest.participantCount }}명</p>
+                <p>EXP +{{ quest.exp }} • 스탬프</p>
+                <button>시작하기</button>
+            </div>
+            </SwiperSlide>  
         </Swiper>
     </section>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from "vue";
+import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import BasicTitle from "../common/BasicTitle.vue";
 
-export default {
-    name: "QuestList",
-    components: {
-        Swiper,
-        SwiperSlide,
-        BasicTitle,
-    },
+const recommendedQuests = ref([]);
+
+// API 호출 함수
+const fetchRecommendedQuests = async () => {
+    try {
+        const response = await axios.get("http://localhost:8080/quests/recommendation?limit=5");
+        recommendedQuests.value = response.data;
+    } catch (error) {
+        console.error("추천 퀘스트 조회 실패", error);
+    }
 };
+
+onMounted(() => {
+    fetchRecommendedQuests();
+});
 </script>
 
 <style scoped>
