@@ -23,4 +23,10 @@ export default [
         component: () => import("@/views/plan/getPlanDetailPage.vue"),
         props: true,
     },
+    {
+        path: "/plans/all",
+        name: "getTotalPlanList",
+        component: () => import("@/views/plan/GetTotalPlansListPage.vue"),
+        props: true,
+    },
 ];

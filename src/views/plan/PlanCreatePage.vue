@@ -85,6 +85,7 @@ const resetForm = () => {
     plan.startDate = "";
     plan.endDate = "";
     plan.description = "";
+    router.push("/plans");
 };
 </script>
 

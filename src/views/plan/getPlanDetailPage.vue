@@ -458,7 +458,7 @@ const exportPlan = () => {
 };
 
 const goBack = () => {
-    router.push("/main");
+    router.push("/plans");
 };
 
 // 컴포넌트 마운트 시

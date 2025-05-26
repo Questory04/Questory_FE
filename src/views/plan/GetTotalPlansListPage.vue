@@ -4,16 +4,16 @@
         <main class="main-content">
             <!-- 페이지 타이틀 -->
             <div class="page-header">
-                <h2 class="page-title">나의 여행 계획</h2>
+                <h2 class="page-title">여행 계획 리스트</h2>
                 <div class="title-underline"></div>
             </div>
 
             <!-- 액션 버튼 -->
             <div class="action-section">
-                <button @click="goToCreatePlan" class="create-plan-btn">
+                <!-- <button @click="goToCreatePlan" class="create-plan-btn">
                     <span class="btn-icon">+</span>
                     새 여행 계획 만들기
-                </button>
+                </button> -->
 
                 <select v-model="sortBy" class="sort-select">
                     <option value="recent">최신순</option>
@@ -211,7 +211,7 @@ const loadTravelPlans = async () => {
             throw new Error("로그인이 필요합니다.");
         }
 
-        const response = await axios.get("http://localhost:8080/plans/me/created", {
+        const response = await axios.get("http://localhost:8080/plans/all", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -239,7 +239,8 @@ const goToCreatePlan = () => {
 };
 
 const goToPlanDetail = (planId) => {
-    router.push(`/plans/${planId}`);
+    // router.push(`/plans/${planId}`);
+    router.push(`/plans/all/${planId}`);
 };
 
 const changePage = (page) => {
