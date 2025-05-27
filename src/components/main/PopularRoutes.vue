@@ -145,8 +145,8 @@ onMounted(() => {
 
 <style scoped>
 .section {
-    margin-bottom: 32px;
-    padding: 0 8px;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
 }
 
 /* 카드 스타일 */
@@ -155,14 +155,15 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid #e3e8ef;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border: 0.0625rem solid #e3e8ef;
+    box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08), 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 320px;
+    min-height: 20rem;
+    margin: 0 0.25rem; /* 카드 사이 여백 추가 */
 }
 
 .card::before {
@@ -171,14 +172,14 @@ onMounted(() => {
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 0.25rem;
     background: linear-gradient(90deg, #7db4d5 0%, #5da0c4 50%, #4a90e2 100%);
-    border-radius: 16px 16px 0 0;
+    border-radius: 1rem 1rem 0 0;
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-0.25rem);
+    box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.12), 0 0.25rem 0.75rem rgba(0, 0, 0, 0.06);
 }
 
 /* 카드 컨텐츠 */
@@ -186,18 +187,18 @@ onMounted(() => {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
 }
 
 /* 헤더 정보 */
 .plan-header-info {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .plan-title {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: 700;
     color: #2c3e50;
     margin: 0;
@@ -211,108 +212,108 @@ onMounted(() => {
 .plan-dates {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .date-badge {
     display: inline-flex;
     align-items: center;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: #4a90e2;
     background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: 1px solid #90caf9;
+    padding: 0.375rem 0.75rem;
+    border-radius: 1.25rem;
+    border: 0.0625rem solid #90caf9;
     width: fit-content;
 }
 
 .duration-info {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0.375rem;
 }
 
 .duration-badge {
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: #7b1fa2;
     background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-    padding: 4px 10px;
-    border-radius: 16px;
-    border: 1px solid #ce93d8;
+    padding: 0.25rem 0.625rem;
+    border-radius: 1rem;
+    border: 0.0625rem solid #ce93d8;
 }
 
 /* 메타 정보 */
 .plan-meta {
     display: flex;
-    gap: 16px;
+    gap: 1rem;
 }
 
 .meta-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 14px;
+    gap: 0.375rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: #546e7a;
     background: #eceff1;
-    padding: 6px 12px;
-    border-radius: 12px;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.75rem;
 }
 
 .meta-icon {
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 /* 설명 */
 .plan-description {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #546e7a;
     line-height: 1.5;
     background: #f8f9fa;
-    padding: 12px;
-    border-radius: 12px;
-    border-left: 3px solid #7db4d5;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border-left: 0.1875rem solid #7db4d5;
 }
 
 /* 진행률 섹션 */
 .progress-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
     margin-top: auto;
-    padding-top: 16px;
+    padding-top: 1rem;
 }
 
 .progress-label {
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: #37474f;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0.375rem;
 }
 
 .progress-label::before {
     content: "📊";
-    font-size: 14px;
+    font-size: 0.875rem;
 }
 
 .progress-bar {
     width: 100%;
-    height: 10px;
+    height: 0.625rem;
     background: #e8eaf6;
-    border-radius: 6px;
+    border-radius: 0.375rem;
     overflow: hidden;
     position: relative;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
 }
 
 .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #7db4d5 0%, #5da0c4 50%, #4a90e2 100%);
-    border-radius: 6px;
+    border-radius: 0.375rem;
     transition: width 0.6s ease;
     position: relative;
     overflow: hidden;
@@ -339,30 +340,30 @@ onMounted(() => {
 }
 
 .progress-text {
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #4a90e2;
     text-align: right;
-    margin-top: 4px;
+    margin-top: 0.25rem;
 }
 
 /* 시작하기 버튼 */
 .start-btn {
-    margin-top: 20px;
+    margin-top: 1.25rem;
     background: linear-gradient(135deg, #7db4d5 0%, #5da0c4 100%);
     color: white;
     border: none;
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-size: 15px;
+    padding: 0.875rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(125, 180, 213, 0.3);
+    gap: 0.5rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(125, 180, 213, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -383,8 +384,8 @@ onMounted(() => {
 }
 
 .start-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(125, 180, 213, 0.4);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.375rem 1.25rem rgba(125, 180, 213, 0.4);
     background: linear-gradient(135deg, #5da0c4 0%, #4a90e2 100%);
 }
 
@@ -400,38 +401,47 @@ onMounted(() => {
 }
 
 .btn-icon {
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 /* Swiper 스타일 */
 ::v-deep(.swiper-horizontal) {
-    padding: 0 16px;
+    padding: 0 1rem;
 }
 
 ::v-deep(.swiper-wrapper) {
-    padding: 16px 0 24px 0;
+    padding: 1rem 0 1.5rem 0;
+}
+
+::v-deep(.swiper-slide) {
+    padding: 0 0.25rem; /* 슬라이드 사이 추가 여백 */
 }
 
 /* 반응형 디자인 */
 @media (max-width: 640px) {
     .card {
-        padding: 16px;
-        min-height: 280px;
+        padding: 1rem;
+        min-height: 17.5rem;
+        margin: 0 0.125rem; /* 모바일에서 카드 여백 줄임 */
     }
 
     .plan-title {
-        font-size: 16px;
+        font-size: 1rem;
     }
 
     .start-btn {
-        padding: 12px 16px;
-        font-size: 14px;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    ::v-deep(.swiper-slide) {
+        padding: 0 0.125rem; /* 모바일에서 슬라이드 여백 줄임 */
     }
 }
 
 @media (min-width: 1024px) {
     .card:hover {
-        transform: translateY(-6px) scale(1.02);
+        transform: translateY(-0.375rem) scale(1.02);
     }
 }
 
