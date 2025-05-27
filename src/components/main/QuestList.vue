@@ -10,10 +10,7 @@
                 1280: { slidesPerView: 4, spaceBetween: 45 },
             }"
         >
-            <SwiperSlide
-                v-for="quest in recommendedQuests"
-                :key="quest.questId"
-            >
+            <SwiperSlide v-for="quest in recommendedQuests" :key="quest.questId">
                 <div class="card">
                     <img class="thumbnail" src="@/assets/images/street-bukchon.jpg" alt="썸네일" />
                     <h3>{{ quest.title }}</h3>
@@ -31,18 +28,20 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router"; // 추가
+import { useRouter } from "vue-router";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import BasicTitle from "../common/BasicTitle.vue";
 
+const API_URL = "http://localhost:8080";
+
 const router = useRouter();
 const recommendedQuests = ref([]);
+const loading = ref(false);
 
-// API 호출 함수
 const fetchRecommendedQuests = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/quests/recommendation?limit=5");
+        const response = await axios.get(`${API_URL}/quests/recommendation?limit=5`);
         recommendedQuests.value = response.data;
     } catch (error) {
         console.error("추천 퀘스트 조회 실패", error);
@@ -57,15 +56,50 @@ const handleStartClick = (questId) => {
         return;
     }
 
-    // 👉 원하는 동작 수행: 예) 퀘스트 상세 페이지로 이동
-    router.push(`/quests/${questId}`);
+    loading.value = true;
+
+    axios
+        .patch(
+            `${API_URL}/quests/${questId}/start`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        )
+        .then((response) => {
+            alert(response.data.message || "해당 퀘스트가 시작되었습니다.");
+            fetchRecommendedQuests();
+            // 상세 페이지로 이동하려면 아래 주석 해제
+            // router.push(`/quests/${questId}`);
+        })
+        .catch((error) => {
+            let errorMessage = "퀘스트 시작 중 오류가 발생했습니다.";
+            if (error.response) {
+                if (error.response.status === 401) {
+                    errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                } else if (error.response.status === 403) {
+                    errorMessage = "퀘스트 시작 권한이 없습니다.";
+                } else if (error.response.status === 404) {
+                    errorMessage = "해당 퀘스트를 찾을 수 없습니다.";
+                } else if (error.response.data && error.response.data.message) {
+                    errorMessage = error.response.data.message;
+                }
+            } else if (error.request) {
+                errorMessage = "서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.";
+            }
+            alert(errorMessage);
+        })
+        .finally(() => {
+            loading.value = false;
+        });
 };
 
 onMounted(() => {
     fetchRecommendedQuests();
 });
 </script>
-
 
 <style scoped>
 .section {
