@@ -12,7 +12,7 @@
         >
             <SwiperSlide v-for="quest in recommendedQuests" :key="quest.questId">
                 <div class="card">
-                    <img class="thumbnail" src="@/assets/images/street-bukchon.jpg" alt="썸네일" />
+                    <img :src="quest.img" alt="관광지 이미지" class="thumbnail" />
                     <h3>{{ quest.title }}</h3>
                     <p>{{ quest.difficulty }}</p>
                     <p>생성일: {{ quest.createdAt.slice(0, 10) }}</p>
