@@ -48,7 +48,11 @@
                                 <img :src="quest.attractionImage" alt="관광지 이미지" class="circle large" />
                             </template>
                             <template v-else>
-                                <span>이미지 없음</span>
+                                <img
+                                    src="@/assets/images/no_attraction_image_available.png"
+                                    alt=""
+                                    class="circle large"
+                                />
                             </template>
                         </div>
                     </div>
@@ -125,7 +129,7 @@
                             <img :src="selectedQuest.attractionImage" alt="관광지 이미지" class="circle large" />
                         </template>
                         <template v-else>
-                            <span>이미지 없음</span>
+                            <img src="@/assets/images/no_attraction_image_available.png" alt="" class="circle large" />
                         </template>
                     </div>
                 </div>
