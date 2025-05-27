@@ -6,6 +6,7 @@ import mainRoutes from "./mainRoutes";
 import planRoutes from "./planRoutes";
 import stampRoutes from "./stampRoutes";
 import questRoutes from "./questRoutes";
+import rankingRoutes from "./rankingRoutes";
 import friendRoutes from "./friendRoutes";
 
 const routes = [
@@ -15,6 +16,7 @@ const routes = [
     ...planRoutes,
     ...stampRoutes,
     ...questRoutes,
+    ...rankingRoutes,
     ...friendRoutes,
     // 공통 페이지 추가
     // {

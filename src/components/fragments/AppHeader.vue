@@ -1,7 +1,7 @@
 <template>
     <header class="app-header">
         <div class="container">
-            <a href="/main" class="logo">Questory</a>
+            <a href="/" class="logo">Questory</a>
             <template v-if="isLoggedIn">
                 <nav class="nav-menu">
                     <div class="nav-dropdown">

@@ -2,20 +2,13 @@
     <div class="main-wrapper">
         <Banner />
 
-        <div class="section-wrapper up-section">
-            <div class="left">
+        <div class="section-wrapper">
+            <div class="left-block">
                 <QuestList />
-            </div>
-            <div class="right">
-                <MyInfo />
-            </div>
-        </div>
-
-        <div class="section-wrapper down-section">
-            <div class="left">
                 <PopularRoutes />
             </div>
-            <div class="right">
+            <div class="right-block">
+                <MyInfo />
                 <Ranking />
             </div>
         </div>
@@ -44,23 +37,30 @@ export default {
 <style scoped>
 .main-wrapper {
     width: 60vw;
-    margin: 0 auto; /* 가운데 정렬 */
+    margin: 0 auto;
     padding: 20px;
 }
 
 .section-wrapper {
     display: flex;
-    flex-wrap: wrap;
     gap: 20px;
-    margin-bottom: 40px;
+    margin-top: 40px;
+    flex-wrap: wrap;
 }
 
-.left {
+.left-block,
+.right-block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.left-block {
     flex: 3;
     min-width: 300px;
 }
 
-.right {
+.right-block {
     flex: 1;
     min-width: 250px;
 }
@@ -74,4 +74,5 @@ export default {
         flex-direction: column;
     }
 }
+
 </style>

@@ -1,70 +1,95 @@
 <template>
-    <div>
-        <BasicTitle msg="My" color="black" />
-        <aside class="my-info">
-            <div class="profile-section">
-                <div class="profile-image"></div>
-                <div class="profile-text">
-                    <div class="badge">칭호명</div>
-                    <div class="name">이름</div>
+  <div>
+    <BasicTitle msg="My" color="black" />
 
-                    <!-- <v-progress-linear
-                        :model-value="(exp / maxExp) * 100"
-                        height="6"
-                        color="#7db4d5"
-                        rounded
-                        background-color="#e0e0e0"
-                    ></v-progress-linear> -->
-                </div>
-            </div>
-            <div class="level-exp">
-                <span class="level">Lv 3</span>
-                <span class="exp">{{ exp }}/{{ maxExp }}</span>
-            </div>
-            <v-progress-linear
-                model-value="45"
-                height="6"
-                color="#7db4d5"
-                rounded
-                background-color="#e0e0e0"
-            ></v-progress-linear>
-
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="label">
-                        <img src="@/assets/images/icons/thumbtack-icon.svg" class="icon" />
-                        <span>나의 여행 루트</span>
-                    </div>
-                    <strong>5</strong>
-                </div>
-                <div class="stat-item">
-                    <div class="label">
-                        <img src="@/assets/images/icons/badge-icon.svg" class="icon" />
-                        <span>나의 스탬프</span>
-                    </div>
-                    <strong>10</strong>
-                </div>
-            </div>
-        </aside>
+    <!-- 로그인 안 된 경우 -->
+    <div v-if="!hasToken" class="login-prompt">
+      <p>로그인이 필요합니다.</p>
+      <button @click="goLogin">로그인하러 가기</button>
     </div>
+
+    <!-- 로그인 된 경우 -->
+    <aside v-else class="my-info">
+      <div class="profile-section">
+        <div class="profile-image"></div>
+        <div class="profile-text">
+          <div class="badge">{{ title }}</div>
+          <div class="name">{{ nickname }}</div>
+        </div>
+      </div>
+
+      <div class="level-exp">
+        <span class="level">Lv {{ level }}</span>
+        <span class="exp">{{ exp }} / {{ maxExp }}</span>
+      </div>
+
+      <v-progress-linear
+        :model-value="(exp / maxExp) * 100"
+        height="6"
+        color="#7db4d5"
+        rounded
+        background-color="#e0e0e0"
+      ></v-progress-linear>
+    </aside>
+  </div>
 </template>
 
-<script>
-import BasicTitle from "../common/BasicTitle.vue";
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import BasicTitle from '../common/BasicTitle.vue'
 
-export default {
-    name: "MyInfo",
-    components: {
-        BasicTitle,
-    },
-    data() {
-        return {
-            exp: 231,
-            maxExp: 243,
-        };
-    },
-};
+const router = useRouter()
+const hasToken = ref(false)
+const nickname = ref('')
+const title = ref('')
+const exp = ref(0)
+const level = ref(1)
+const maxExp = ref(100)
+
+const calculateLevelInfo = (exp) => {
+  if (typeof exp !== 'number' || isNaN(exp)) {
+    return { level: 1, maxExp: 100 }
+  }
+  const level = Math.floor(exp / 100) + 1
+  const maxExp = level * 100
+  return { level, maxExp }
+}
+
+const goLogin = () => {
+  router.push('/login')
+}
+
+onMounted(async () => {
+  const token = localStorage.getItem('accessToken')
+  if (!token) return
+
+  hasToken.value = true
+
+  try {
+    const res = await axios.get('http://localhost:8080/me', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    const data = res.data
+
+    nickname.value = data.nickname ?? '닉네임 없음'
+    title.value = data.title ?? '칭호 없음'
+    exp.value = typeof data.exp === 'number' ? data.exp : 0
+
+    const { level: lv, maxExp: max } = calculateLevelInfo(exp.value)
+    level.value = lv
+    maxExp.value = max
+  } catch (err) {
+    console.error('내 정보 조회 실패:', err)
+    hasToken.value = false
+  }
+})
 </script>
+
+
 
 <style scoped>
 .my-info {
@@ -151,5 +176,22 @@ export default {
 .alert h4 {
     font-weight: bold;
     margin-bottom: 4px;
+}
+
+.login-prompt {
+  text-align: center;
+  padding: 20px;
+  background-color: #f3f4f6;
+  border-radius: 10px;
+}
+
+.login-prompt button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #7db4d5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>
